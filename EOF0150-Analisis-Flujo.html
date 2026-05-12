@@ -3,451 +3,491 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EOF0150 - Mapa Completo de Ejecución</title>
+  <title>EOF0150 - Análisis Ejecutivo de Flujo e Impacto</title>
   <style>
     :root {
       --bg1: #0b1220;
       --bg2: #172554;
-      --panel: rgba(255,255,255,0.95);
+      --panel: rgba(255, 255, 255, 0.94);
+      --panel-strong: #ffffff;
       --text: #1f2937;
       --muted: #6b7280;
       --accent: #2563eb;
+      --accent-soft: #dbeafe;
       --border: #d1d5db;
-      --shadow: 0 12px 30px rgba(15, 23, 42, 0.20);
+      --danger: #b91c1c;
+      --warn: #b45309;
+      --ok: #047857;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
     }
+
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
       color: var(--text);
       line-height: 1.55;
       background:
-        radial-gradient(circle at top left, rgba(37,99,235,.30), transparent 28%),
-        radial-gradient(circle at top right, rgba(59,130,246,.18), transparent 22%),
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.32), transparent 28%),
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.22), transparent 22%),
         linear-gradient(135deg, var(--bg1), var(--bg2));
       background-attachment: fixed;
     }
+
     .container {
-      max-width: 1240px;
+      max-width: 1180px;
       margin: 0 auto;
       padding: 36px 20px 60px;
     }
-    .hero, .card {
-      background: var(--panel);
-      border: 1px solid rgba(255,255,255,.62);
-      border-radius: 20px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(5px);
-    }
+
     .hero {
+      background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(239,246,255,0.94));
+      border: 1px solid rgba(255,255,255,0.55);
+      border-radius: 22px;
       padding: 30px;
-      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
     }
-    .card {
-      padding: 22px;
-      margin-bottom: 18px;
+
+    h1, h2, h3, h4 {
+      color: #111827;
+      margin-top: 0;
     }
-    h1, h2, h3 { margin-top: 0; color: #111827; }
-    h1 { font-size: 2.05rem; margin-bottom: 10px; }
+
+    h1 {
+      font-size: 2.1rem;
+      margin-bottom: 10px;
+    }
+
     h2.section-title {
       margin: 28px 0 14px;
       color: #f8fafc;
-      font-size: 1.28rem;
+      font-size: 1.25rem;
       letter-spacing: .02em;
     }
-    .meta { color: var(--muted); margin: 4px 0; }
-    .lead { color: #334155; }
+
+    .lead {
+      color: #334155;
+      font-size: 1.02rem;
+      margin-bottom: 0;
+    }
+
     .grid-2 {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap: 18px;
     }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 18px;
+      padding: 20px 22px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(6px);
+      margin-bottom: 18px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .summary-box {
+      background: rgba(255,255,255,0.88);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .summary-box h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin: 4px 0;
+    }
+
     .badge {
       display: inline-block;
-      padding: 4px 10px;
+      padding: 4px 9px;
       border-radius: 999px;
-      font-size: .82rem;
-      margin-right: 6px;
-      margin-top: 6px;
-      background: #dbeafe;
-      color: #1e3a8a;
-      border: 1px solid #bfdbfe;
+      font-size: 0.8rem;
+      margin: 4px 6px 0 0;
+      border: 1px solid var(--border);
+      background: #f3f4f6;
     }
-    .flow {
-      margin-top: 16px;
-      overflow-x: auto;
-    }
-    .flow svg {
-      width: 100%;
-      height: auto;
-      min-width: 1100px;
-      background: linear-gradient(180deg, #f8fbff, #eef5ff);
-      border: 1px solid #dbeafe;
-      border-radius: 18px;
-    }
+
+    .danger { background: #fee2e2; color: var(--danger); border-color: #fecaca; }
+    .warn { background: #fef3c7; color: var(--warn); border-color: #fde68a; }
+    .ok { background: #d1fae5; color: var(--ok); border-color: #a7f3d0; }
+    .accent { background: var(--accent-soft); color: #1e3a8a; border-color: #bfdbfe; }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      background: #fff;
+      margin: 10px 0 4px;
+      background: var(--panel-strong);
+      border-radius: 12px;
+      overflow: hidden;
     }
+
     th, td {
       border: 1px solid #e5e7eb;
       padding: 10px;
       text-align: left;
       vertical-align: top;
     }
-    th { background: #eff6ff; }
-    ul, ol { padding-left: 22px; }
+
+    th {
+      background: #eff6ff;
+    }
+
+    ul, ol {
+      padding-left: 22px;
+      margin-bottom: 0;
+    }
+
     code {
       background: #eff6ff;
-      color: #1d4ed8;
       padding: 1px 6px;
       border-radius: 6px;
+      color: #1d4ed8;
     }
-    .small { font-size: .92rem; color: var(--muted); }
+
+    .flow {
+      margin-top: 14px;
+      overflow-x: auto;
+    }
+
+    .flow svg {
+      width: 100%;
+      height: auto;
+      min-width: 820px;
+      background: linear-gradient(180deg, #f8fbff, #eef5ff);
+      border: 1px solid #dbeafe;
+      border-radius: 16px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <section class="hero">
-      <h1>EOF0150 - Mapa Completo de Ejecución del Proceso</h1>
-      <p class="lead">Documento técnico-visual del servicio <strong>EOF0150</strong>, con foco en el flujo completo de ejecución, sus bifurcaciones, validaciones principales y el comportamiento específico del flujo de <strong>Vale Vista</strong> y <strong>TEF</strong>.</p>
+      <h1>EOF0150 - Análisis Ejecutivo de Flujo, Validaciones e Impacto</h1>
+      <p class="lead">Documento ejecutivo del servicio <strong>EOF0150</strong>, orientado a explicar su flujo funcional, las validaciones críticas de monto y el impacto técnico de modificar la lógica actual para permitir múltiples TEF.</p>
       <p class="meta"><strong>Programa:</strong> EOF0150</p>
       <p class="meta"><strong>Función:</strong> Mantenedor de Vale Vista Digital</p>
       <p class="meta"><strong>Fecha documento:</strong> 2026-05-12</p>
       <div>
-        <span class="badge">Mapa principal</span>
-        <span class="badge">Aprobación detalle</span>
-        <span class="badge">Flujo TEF</span>
-        <span class="badge">Compra de cartera</span>
+        <span class="badge accent">Cabecera</span>
+        <span class="badge accent">Detalle</span>
+        <span class="badge accent">Vale Vista</span>
+        <span class="badge accent">TEF</span>
+        <span class="badge warn">Regla remanente exacto</span>
+        <span class="badge danger">Sin commit</span>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-box">
+          <h3>Conclusión principal</h3>
+          <p>Hoy el flujo está diseñado para que la <strong>TEF sea residual</strong> y en la práctica opere como una sola TEF por préstamo.</p>
+        </div>
+        <div class="summary-box">
+          <h3>Regla crítica</h3>
+          <p>En compra de cartera, la TEF debe ser por el <strong>monto remanente exacto</strong> después de los Vale Vista.</p>
+        </div>
+        <div class="summary-box">
+          <h3>Orden del flujo</h3>
+          <p>Para <strong>Compra de Cartera</strong>, primero deben existir/aprobarse Vale Vista y luego se aprueba la TEF.</p>
+        </div>
+        <div class="summary-box">
+          <h3>Impacto del cambio</h3>
+          <p>Permitir más de una TEF obliga a rediseñar la validación de remanente y la cuadratura final.</p>
+        </div>
       </div>
     </section>
 
-    <h2 class="section-title">1. Lectura rápida del proceso</h2>
-    <div class="grid-2">
+    <h2 class="section-title">1. Resumen ejecutivo</h2>
+    <section class="grid-2">
       <div class="card">
-        <h3>Qué hace el programa</h3>
-        <p>Recibe una solicitud por socket, identifica el formato de entrada, ejecuta la operación correspondiente y devuelve respuesta al canal consumidor.</p>
+        <h3>Qué hace el servicio</h3>
+        <p>EOF0150 administra solicitudes de pago asociadas a préstamos, controlando una cabecera por préstamo y múltiples detalles de pago, que pueden corresponder a <strong>Vale Vista</strong> o <strong>TEF</strong>.</p>
       </div>
       <div class="card">
-        <h3>Qué bloques principales tiene</h3>
+        <h3>Qué controla</h3>
+        <p>El servicio controla estados, montos acumulados, validaciones de negocio, aprobación/rechazo, emisión de Vale Vista y ejecución contable de la TEF.</p>
+      </div>
+    </section>
+
+    <h2 class="section-title">2. Flujo ejecutivo del proceso</h2>
+    <div class="card">
+      <p>El proceso operativo se puede resumir así:</p>
+      <ol>
+        <li>Se crea o consulta la <strong>cabecera</strong> del préstamo.</li>
+        <li>Se registran uno o más <strong>detalles</strong> de pago.</li>
+        <li>Los detalles pueden ser <strong>Vale Vista</strong> o <strong>TEF</strong>.</li>
+        <li>Los Vale Vista pasan por aprobación y emisión.</li>
+        <li>La TEF se valida contra el monto restante y luego se ejecuta.</li>
+        <li>Finalmente se actualizan los acumulados de la cabecera.</li>
+      </ol>
+
+      <div class="flow">
+        <svg viewBox="0 0 1200 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Flujo ejecutivo EOF0150">
+          <defs>
+            <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#2563eb" />
+            </marker>
+          </defs>
+
+          <rect x="40" y="140" width="160" height="70" rx="14" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+          <text x="120" y="170" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e3a8a">Inicio</text>
+          <text x="120" y="192" text-anchor="middle" font-size="13" fill="#334155">Recepción formato</text>
+
+          <rect x="250" y="140" width="180" height="70" rx="14" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+          <text x="340" y="170" text-anchor="middle" font-size="18" font-weight="bold" fill="#111827">Cabecera</text>
+          <text x="340" y="192" text-anchor="middle" font-size="13" fill="#475569">Crear / consultar</text>
+
+          <rect x="480" y="140" width="180" height="70" rx="14" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+          <text x="570" y="170" text-anchor="middle" font-size="18" font-weight="bold" fill="#111827">Detalle</text>
+          <text x="570" y="192" text-anchor="middle" font-size="13" fill="#475569">VV o TEF</text>
+
+          <polygon points="740,120 880,175 740,230 600,175" fill="#fff7ed" stroke="#f59e0b" stroke-width="2"/>
+          <text x="740" y="170" text-anchor="middle" font-size="16" font-weight="bold" fill="#92400e">¿Tipo de detalle?</text>
+          <text x="740" y="190" text-anchor="middle" font-size="12" fill="#92400e">Vale Vista / TEF</text>
+
+          <rect x="950" y="60" width="180" height="70" rx="14" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+          <text x="1040" y="90" text-anchor="middle" font-size="17" font-weight="bold" fill="#065f46">Vale Vista</text>
+          <text x="1040" y="112" text-anchor="middle" font-size="13" fill="#065f46">Aprueba y emite</text>
+
+          <rect x="950" y="250" width="180" height="84" rx="14" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+          <text x="1040" y="280" text-anchor="middle" font-size="17" font-weight="bold" fill="#1d4ed8">TEF</text>
+          <text x="1040" y="302" text-anchor="middle" font-size="13" fill="#1d4ed8">Valida remanente</text>
+          <text x="1040" y="320" text-anchor="middle" font-size="13" fill="#1d4ed8">y ejecuta</text>
+
+          <rect x="950" y="360" width="180" height="48" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+          <text x="1040" y="390" text-anchor="middle" font-size="15" font-weight="bold" fill="#111827">Actualiza cabecera</text>
+
+          <line x1="200" y1="175" x2="250" y2="175" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow)"/>
+          <line x1="430" y1="175" x2="480" y2="175" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow)"/>
+          <line x1="660" y1="175" x2="600" y2="175" stroke="#2563eb" stroke-width="3" opacity="0"/>
+          <line x1="660" y1="175" x2="600" y2="175" stroke="#2563eb" stroke-width="3" opacity="0"/>
+          <line x1="660" y1="175" x2="600" y2="175" stroke="#2563eb" stroke-width="3" opacity="0"/>
+          <line x1="660" y1="175" x2="600" y2="175" stroke="#2563eb" stroke-width="3" opacity="0"/>
+          <line x1="660" y1="175" x2="600" y2="175" stroke="#2563eb" stroke-width="3" opacity="0"/>
+          <line x1="660" y1="175" x2="600" y2="175" stroke="#2563eb" stroke-width="3" opacity="0"/>
+          <line x1="660" y1="175" x2="740" y2="175" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow)"/>
+          <line x1="880" y1="145" x2="950" y2="95" stroke="#10b981" stroke-width="3" marker-end="url(#arrow)"/>
+          <line x1="880" y1="205" x2="950" y2="292" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow)"/>
+          <line x1="1040" y1="130" x2="1040" y2="360" stroke="#64748b" stroke-width="2.5" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
+          <line x1="1040" y1="334" x2="1040" y2="360" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow)"/>
+
+          <text x="905" y="115" font-size="12" fill="#065f46">VV</text>
+          <text x="900" y="250" font-size="12" fill="#1d4ed8">TEF</text>
+        </svg>
+      </div>
+      <p class="small">Diagrama ejecutivo simplificado del flujo principal del servicio.</p>
+    </div>
+
+    <h2 class="section-title">3. Regla crítica de negocio para TEF</h2>
+    <div class="card">
+      <h3>Validación faltante que debe quedar explícita</h3>
+      <p>En la rutina <code>valTefApr</code> existe una validación clave: para <strong>Compra de Cartera</strong>, la TEF no puede ser por un monto libre, sino que debe ser por el <strong>remanente exacto</strong> que queda luego de considerar los Vale Vista y demás montos ya aprobados o emitidos.</p>
+      <p>La lógica observada es:</p>
+      <ul>
+        <li>se acumulan los montos ya aprobados o emitidos,</li>
+        <li>se calcula <code>mntTefDif = OFMOAMH - sumamt</code>,</li>
+        <li>si el flujo es <code>OFMTIPO = 'C'</code> y el remanente no cuadra exactamente, se lanza error <code>2276</code>.</li>
+      </ul>
+      <p><strong>Interpretación funcional:</strong> la TEF actual actúa como pago residual final del préstamo. Por lo tanto, hoy la TEF debe ser exactamente igual al monto restante después de los Vale Vista; no puede ser ni menor ni mayor.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Ejemplo</th>
+            <th>Crédito</th>
+            <th>VV acumulados</th>
+            <th>Remanente</th>
+            <th>TEF permitida hoy</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Escenario 1</td>
+            <td>100.000</td>
+            <td>70.000</td>
+            <td>30.000</td>
+            <td>Solo 30.000</td>
+          </tr>
+          <tr>
+            <td>Escenario 2</td>
+            <td>100.000</td>
+            <td>80.000</td>
+            <td>20.000</td>
+            <td>Solo 20.000</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p><span class="badge warn">Importante</span> Para permitir múltiples TEF, esta validación debe rediseñarse. No basta con quitar la restricción de TEF única.</p>
+    </div>
+
+    <h2 class="section-title">4. Orden actual del flujo</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Compra de Cartera (<code>OFMTIPO = 'C'</code>)</h3>
         <ul>
-          <li>Cabecera de solicitud</li>
-          <li>Detalle de Vale Vista / TEF</li>
-          <li>Aprobación o rechazo</li>
-          <li>Emisión de VV</li>
-          <li>Ejecución contable de TEF</li>
+          <li>Debe existir al menos un Vale Vista previo.</li>
+          <li>La TEF no puede ser por el 100% del crédito.</li>
+          <li>La TEF debe ser por el remanente exacto.</li>
+          <li>En la práctica: <strong>primero Vale Vista, luego TEF</strong>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Flujo Libre (<code>OFMTIPO = 'L'</code>)</h3>
+        <ul>
+          <li>Puede operar con TEF al 100% si no existen VV.</li>
+          <li>Si no hay VV, la TEF debe cuadrar el total del crédito.</li>
+          <li>La lógica es menos restrictiva que en compra de cartera.</li>
         </ul>
       </div>
     </div>
 
-    <h2 class="section-title">2. Mapa 1 - Flujo principal del programa</h2>
+    <h2 class="section-title">5. Diagrama ejecutivo de validación TEF</h2>
     <div class="card">
-      <p>Este mapa representa el dispatcher principal del servicio, desde la entrada hasta la derivación a cabecera, detalle o consulta de préstamos.</p>
       <div class="flow">
-        <svg viewBox="0 0 1680 920" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mapa principal EOF0150">
+        <svg viewBox="0 0 1280 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama validación TEF">
           <defs>
-            <marker id="a1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <marker id="arrow2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
               <path d="M0,0 L0,6 L9,3 z" fill="#2563eb" />
             </marker>
           </defs>
 
-          <rect x="40" y="60" width="220" height="72" rx="16" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
-          <text x="150" y="90" text-anchor="middle" font-size="20" font-weight="bold" fill="#1e3a8a">Inicio</text>
-          <text x="150" y="112" text-anchor="middle" font-size="13" fill="#334155">Recibe port, rformat, rbuffer</text>
+          <rect x="60" y="70" width="180" height="64" rx="14" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+          <text x="150" y="98" text-anchor="middle" font-size="17" font-weight="bold" fill="#1e3a8a">Inicio validación</text>
+          <text x="150" y="118" text-anchor="middle" font-size="13" fill="#334155">valTefApr</text>
 
-          <rect x="330" y="60" width="220" height="72" rx="16" fill="#fff" stroke="#94a3b8" stroke-width="2"/>
-          <text x="440" y="90" text-anchor="middle" font-size="18" font-weight="bold" fill="#111827">Usuario / batch</text>
-          <text x="440" y="112" text-anchor="middle" font-size="13" fill="#475569">CHAIN CNTRLBTH</text>
+          <rect x="310" y="70" width="220" height="64" rx="14" fill="#fff" stroke="#94a3b8" stroke-width="2"/>
+          <text x="420" y="96" text-anchor="middle" font-size="16" font-weight="bold" fill="#111827">Calcula acumulados</text>
+          <text x="420" y="116" text-anchor="middle" font-size="13" fill="#475569">VV + TEF ya aprobados</text>
 
-          <polygon points="700,45 840,96 700,147 560,96" fill="#fff7ed" stroke="#f59e0b" stroke-width="2"/>
-          <text x="700" y="90" text-anchor="middle" font-size="18" font-weight="bold" fill="#92400e">¿Usuario válido?</text>
-          <text x="700" y="112" text-anchor="middle" font-size="12" fill="#92400e">%FOUND</text>
+          <polygon points="655,55 790,102 655,149 520,102" fill="#fff7ed" stroke="#f59e0b" stroke-width="2"/>
+          <text x="655" y="98" text-anchor="middle" font-size="15" font-weight="bold" fill="#92400e">¿Supera saldo?</text>
+          <text x="655" y="116" text-anchor="middle" font-size="12" fill="#92400e">sumamt &gt; OFMOAMH</text>
 
-          <rect x="930" y="58" width="210" height="76" rx="16" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
-          <text x="1035" y="90" text-anchor="middle" font-size="18" font-weight="bold" fill="#991b1b">Fin / Error</text>
-          <text x="1035" y="112" text-anchor="middle" font-size="13" fill="#991b1b">No continúa el flujo</text>
+          <rect x="860" y="35" width="180" height="64" rx="14" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+          <text x="950" y="62" text-anchor="middle" font-size="17" font-weight="bold" fill="#991b1b">Rechaza</text>
+          <text x="950" y="84" text-anchor="middle" font-size="13" fill="#991b1b">Error 8596</text>
 
-          <polygon points="700,210 880,275 700,340 520,275" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
-          <text x="700" y="268" text-anchor="middle" font-size="18" font-weight="bold" fill="#1d4ed8">¿Qué formato llega?</text>
-          <text x="700" y="290" text-anchor="middle" font-size="12" fill="#1d4ed8">rformat</text>
+          <polygon points="655,190 805,245 655,300 505,245" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+          <text x="655" y="240" text-anchor="middle" font-size="15" font-weight="bold" fill="#1d4ed8">¿Compra de cartera?</text>
+          <text x="655" y="258" text-anchor="middle" font-size="12" fill="#1d4ed8">OFMTIPO = C</text>
 
-          <rect x="90" y="420" width="300" height="110" rx="16" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
-          <text x="240" y="452" text-anchor="middle" font-size="18" font-weight="bold" fill="#111827">EOF015001</text>
-          <text x="240" y="476" text-anchor="middle" font-size="13" fill="#475569">Operaciones de cabecera</text>
-          <text x="240" y="498" text-anchor="middle" font-size="13" fill="#475569">0001 listar / 0002 buscar /</text>
-          <text x="240" y="516" text-anchor="middle" font-size="13" fill="#475569">0003 crear-act / 0004 eliminar</text>
+          <polygon points="655,340 825,395 655,450 485,395" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+          <text x="655" y="386" text-anchor="middle" font-size="15" font-weight="bold" fill="#065f46">¿Existe al menos</text>
+          <text x="655" y="404" text-anchor="middle" font-size="15" font-weight="bold" fill="#065f46">un Vale Vista?</text>
 
-          <rect x="540" y="420" width="320" height="110" rx="16" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
-          <text x="700" y="452" text-anchor="middle" font-size="18" font-weight="bold" fill="#111827">EOF015002</text>
-          <text x="700" y="476" text-anchor="middle" font-size="13" fill="#475569">Operaciones de detalle</text>
-          <text x="700" y="498" text-anchor="middle" font-size="13" fill="#475569">0001 listar / 0002 buscar / 0003 crear-act /</text>
-          <text x="700" y="516" text-anchor="middle" font-size="13" fill="#475569">0004 eliminar / 0005 aprobar-rechazar</text>
+          <rect x="1040" y="214" width="180" height="70" rx="14" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+          <text x="1130" y="244" text-anchor="middle" font-size="17" font-weight="bold" fill="#991b1b">Rechaza</text>
+          <text x="1130" y="264" text-anchor="middle" font-size="13" fill="#991b1b">Error 2272</text>
 
-          <rect x="1010" y="420" width="300" height="110" rx="16" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
-          <text x="1160" y="452" text-anchor="middle" font-size="18" font-weight="bold" fill="#111827">EOF015003</text>
-          <text x="1160" y="476" text-anchor="middle" font-size="13" fill="#475569">Consulta de préstamos</text>
-          <text x="1160" y="498" text-anchor="middle" font-size="13" fill="#475569">0001 listar por cliente o RUT</text>
+          <rect x="980" y="360" width="230" height="84" rx="14" fill="#fff7ed" stroke="#f59e0b" stroke-width="2"/>
+          <text x="1095" y="388" text-anchor="middle" font-size="16" font-weight="bold" fill="#92400e">Regla remanente exacto</text>
+          <text x="1095" y="408" text-anchor="middle" font-size="13" fill="#92400e">TEF debe ser igual al</text>
+          <text x="1095" y="426" text-anchor="middle" font-size="13" fill="#92400e">monto restante</text>
 
-          <rect x="1360" y="420" width="220" height="110" rx="16" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
-          <text x="1470" y="452" text-anchor="middle" font-size="18" font-weight="bold" fill="#991b1b">Formato no válido</text>
-          <text x="1470" y="478" text-anchor="middle" font-size="13" fill="#991b1b">Error 1216</text>
-          <text x="1470" y="498" text-anchor="middle" font-size="13" fill="#991b1b">suberror + senderror</text>
+          <rect x="980" y="470" width="230" height="34" rx="10" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+          <text x="1095" y="492" text-anchor="middle" font-size="14" font-weight="bold" fill="#065f46">Si no cuadra: Error 2276</text>
 
-          <rect x="90" y="640" width="300" height="150" rx="16" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
-          <text x="240" y="672" text-anchor="middle" font-size="17" font-weight="bold" fill="#065f46">Cabecera</text>
-          <text x="240" y="698" text-anchor="middle" font-size="13" fill="#065f46">sendlistc / sendlistc2</text>
-          <text x="240" y="718" text-anchor="middle" font-size="13" fill="#065f46">newHeader / suprrecord</text>
-          <text x="240" y="738" text-anchor="middle" font-size="13" fill="#065f46">valHeader</text>
-          <text x="240" y="758" text-anchor="middle" font-size="13" fill="#065f46">OFMVDHR / OFMVDHRH</text>
-
-          <rect x="540" y="640" width="320" height="150" rx="16" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
-          <text x="700" y="672" text-anchor="middle" font-size="17" font-weight="bold" fill="#1d4ed8">Detalle</text>
-          <text x="700" y="698" text-anchor="middle" font-size="13" fill="#1d4ed8">sendlistd / sendlistd2</text>
-          <text x="700" y="718" text-anchor="middle" font-size="13" fill="#1d4ed8">newDetail / suprdetail</text>
-          <text x="700" y="738" text-anchor="middle" font-size="13" fill="#1d4ed8">approvreject</text>
-          <text x="700" y="758" text-anchor="middle" font-size="13" fill="#1d4ed8">OFMSTVD / OFMSTVDH</text>
-
-          <rect x="1010" y="640" width="300" height="150" rx="16" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
-          <text x="1160" y="672" text-anchor="middle" font-size="17" font-weight="bold" fill="#334155">Consulta</text>
-          <text x="1160" y="698" text-anchor="middle" font-size="13" fill="#334155">sendlistc3</text>
-          <text x="1160" y="718" text-anchor="middle" font-size="13" fill="#334155">Préstamos por cliente/RUT</text>
-          <text x="1160" y="738" text-anchor="middle" font-size="13" fill="#334155">Lectura de CUMST / DEALSL1</text>
-
-          <rect x="1370" y="690" width="190" height="60" rx="14" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
-          <text x="1465" y="725" text-anchor="middle" font-size="16" font-weight="bold" fill="#111827">Respuesta</text>
-
-          <line x1="260" y1="96" x2="330" y2="96" stroke="#2563eb" stroke-width="3" marker-end="url(#a1)"/>
-          <line x1="550" y1="96" x2="560" y2="96" stroke="#2563eb" stroke-width="3" opacity="0"/>
-          <line x1="550" y1="96" x2="560" y2="96" stroke="#2563eb" stroke-width="3" opacity="0"/>
-          <line x1="550" y1="96" x2="700" y2="96" stroke="#2563eb" stroke-width="3" marker-end="url(#a1)"/>
-          <line x1="840" y1="96" x2="930" y2="96" stroke="#dc2626" stroke-width="3" marker-end="url(#a1)"/>
-          <line x1="700" y1="147" x2="700" y2="210" stroke="#2563eb" stroke-width="3" marker-end="url(#a1)"/>
-          <line x1="610" y1="330" x2="260" y2="420" stroke="#10b981" stroke-width="3" marker-end="url(#a1)"/>
-          <line x1="700" y1="340" x2="700" y2="420" stroke="#2563eb" stroke-width="3" marker-end="url(#a1)"/>
-          <line x1="790" y1="330" x2="1160" y2="420" stroke="#64748b" stroke-width="3" marker-end="url(#a1)"/>
-          <line x1="880" y1="275" x2="1360" y2="475" stroke="#dc2626" stroke-width="3" marker-end="url(#a1)"/>
-          <line x1="240" y1="530" x2="240" y2="640" stroke="#10b981" stroke-width="3" marker-end="url(#a1)"/>
-          <line x1="700" y1="530" x2="700" y2="640" stroke="#2563eb" stroke-width="3" marker-end="url(#a1)"/>
-          <line x1="1160" y1="530" x2="1160" y2="640" stroke="#64748b" stroke-width="3" marker-end="url(#a1)"/>
-          <line x1="1310" y1="715" x2="1370" y2="720" stroke="#64748b" stroke-width="3" marker-end="url(#a1)"/>
-          <line x1="860" y1="715" x2="1370" y2="720" stroke="#2563eb" stroke-width="3" stroke-dasharray="7 6" marker-end="url(#a1)"/>
-          <line x1="390" y1="715" x2="1370" y2="720" stroke="#10b981" stroke-width="3" stroke-dasharray="7 6" marker-end="url(#a1)"/>
+          <line x1="240" y1="102" x2="310" y2="102" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow2)"/>
+          <line x1="530" y1="102" x2="520" y2="102" stroke="#2563eb" stroke-width="3" opacity="0"/>
+          <line x1="530" y1="102" x2="655" y2="102" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow2)"/>
+          <line x1="790" y1="84" x2="860" y2="67" stroke="#dc2626" stroke-width="3" marker-end="url(#arrow2)"/>
+          <line x1="655" y1="149" x2="655" y2="190" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow2)"/>
+          <line x1="805" y1="245" x2="1040" y2="245" stroke="#dc2626" stroke-width="3" marker-end="url(#arrow2)"/>
+          <line x1="655" y1="300" x2="655" y2="340" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow2)"/>
+          <line x1="825" y1="395" x2="980" y2="395" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow2)"/>
         </svg>
       </div>
-      <p class="small">Mapa del dispatcher principal: identifica entrada, selección por formato y salida hacia los bloques funcionales.</p>
+      <p class="small">Este diagrama muestra la regla más relevante para el cambio solicitado: hoy la TEF, en compra de cartera, debe cuadrar exactamente el remanente.</p>
     </div>
 
-    <h2 class="section-title">3. Mapa 2 - Flujo de detalle, aprobación y rechazo</h2>
-    <div class="card">
-      <p>Este diagrama muestra el recorrido más importante del servicio: creación/actualización del detalle y su posterior aprobación o rechazo.</p>
-      <div class="flow">
-        <svg viewBox="0 0 1900 1100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Flujo detalle y aprobación">
-          <defs>
-            <marker id="a2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-              <path d="M0,0 L0,6 L9,3 z" fill="#2563eb" />
-            </marker>
-          </defs>
-
-          <rect x="60" y="60" width="220" height="72" rx="16" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
-          <text x="170" y="90" text-anchor="middle" font-size="19" font-weight="bold" fill="#1e3a8a">newDetail</text>
-          <text x="170" y="112" text-anchor="middle" font-size="13" fill="#334155">Alta / actualización</text>
-
-          <rect x="370" y="60" width="220" height="72" rx="16" fill="#fff" stroke="#94a3b8" stroke-width="2"/>
-          <text x="480" y="90" text-anchor="middle" font-size="18" font-weight="bold" fill="#111827">movDataDetG</text>
-          <text x="480" y="112" text-anchor="middle" font-size="13" fill="#475569">Carga defaults</text>
-
-          <rect x="680" y="60" width="220" height="72" rx="16" fill="#fff" stroke="#94a3b8" stroke-width="2"/>
-          <text x="790" y="90" text-anchor="middle" font-size="18" font-weight="bold" fill="#111827">valDetail</text>
-          <text x="790" y="112" text-anchor="middle" font-size="13" fill="#475569">Valida cabecera, monto, tipo</text>
-
-          <polygon points="1060,45 1210,96 1060,147 910,96" fill="#fff7ed" stroke="#f59e0b" stroke-width="2"/>
-          <text x="1060" y="90" text-anchor="middle" font-size="18" font-weight="bold" fill="#92400e">¿Validación OK?</text>
-          <text x="1060" y="112" text-anchor="middle" font-size="12" fill="#92400e">e1 = 0</text>
-
-          <rect x="1310" y="58" width="220" height="76" rx="16" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
-          <text x="1420" y="90" text-anchor="middle" font-size="18" font-weight="bold" fill="#991b1b">Error</text>
-          <text x="1420" y="112" text-anchor="middle" font-size="13" fill="#991b1b">senderror + senddata</text>
-
-          <polygon points="1060,220 1220,275 1060,330 900,275" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
-          <text x="1060" y="270" text-anchor="middle" font-size="17" font-weight="bold" fill="#1d4ed8">¿Existe detalle?</text>
-          <text x="1060" y="292" text-anchor="middle" font-size="12" fill="#1d4ed8">CHAIN OFMSTVDL4</text>
-
-          <rect x="760" y="420" width="260" height="90" rx="16" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
-          <text x="890" y="454" text-anchor="middle" font-size="18" font-weight="bold" fill="#111827">Actualizar detalle</text>
-          <text x="890" y="478" text-anchor="middle" font-size="13" fill="#475569">Si estado 1, 3 o 5</text>
-
-          <rect x="1120" y="420" width="280" height="90" rx="16" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
-          <text x="1260" y="452" text-anchor="middle" font-size="18" font-weight="bold" fill="#111827">Crear detalle nuevo</text>
-          <text x="1260" y="476" text-anchor="middle" font-size="13" fill="#475569">Genera número + estado 1</text>
-
-          <rect x="930" y="560" width="320" height="90" rx="16" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
-          <text x="1090" y="594" text-anchor="middle" font-size="18" font-weight="bold" fill="#065f46">Graba histórico</text>
-          <text x="1090" y="618" text-anchor="middle" font-size="13" fill="#065f46">OFMSTVDH</text>
-
-          <rect x="90" y="420" width="290" height="90" rx="16" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
-          <text x="235" y="452" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e3a8a">approvreject</text>
-          <text x="235" y="476" text-anchor="middle" font-size="13" fill="#334155">Aprobación / rechazo</text>
-
-          <rect x="90" y="570" width="290" height="90" rx="16" fill="#fff" stroke="#94a3b8" stroke-width="2"/>
-          <text x="235" y="602" text-anchor="middle" font-size="18" font-weight="bold" fill="#111827">Busca cabecera y detalle</text>
-          <text x="235" y="626" text-anchor="middle" font-size="13" fill="#475569">Valida existencia y estado</text>
-
-          <polygon points="235,740 395,800 235,860 75,800" fill="#fff7ed" stroke="#f59e0b" stroke-width="2"/>
-          <text x="235" y="794" text-anchor="middle" font-size="17" font-weight="bold" fill="#92400e">¿Acción?</text>
-          <text x="235" y="816" text-anchor="middle" font-size="12" fill="#92400e">Aprobar / Rechazar</text>
-
-          <rect x="40" y="930" width="220" height="90" rx="16" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
-          <text x="150" y="964" text-anchor="middle" font-size="18" font-weight="bold" fill="#991b1b">Rechazo</text>
-          <text x="150" y="988" text-anchor="middle" font-size="13" fill="#991b1b">Estado 3 o 5</text>
-
-          <polygon points="620,740 790,800 620,860 450,800" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
-          <text x="620" y="794" text-anchor="middle" font-size="17" font-weight="bold" fill="#1d4ed8">¿Tipo detalle?</text>
-          <text x="620" y="816" text-anchor="middle" font-size="12" fill="#1d4ed8">V o T</text>
-
-          <rect x="940" y="700" width="260" height="110" rx="16" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
-          <text x="1070" y="736" text-anchor="middle" font-size="18" font-weight="bold" fill="#065f46">Vale Vista</text>
-          <text x="1070" y="760" text-anchor="middle" font-size="13" fill="#065f46">valEmision</text>
-          <text x="1070" y="780" text-anchor="middle" font-size="13" fill="#065f46">Estado 2 o 4</text>
-          <text x="1070" y="800" text-anchor="middle" font-size="13" fill="#065f46">emisionVV</text>
-
-          <rect x="1330" y="700" width="300" height="110" rx="16" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
-          <text x="1480" y="736" text-anchor="middle" font-size="18" font-weight="bold" fill="#1d4ed8">TEF</text>
-          <text x="1480" y="760" text-anchor="middle" font-size="13" fill="#1d4ed8">valTefApr</text>
-          <text x="1480" y="780" text-anchor="middle" font-size="13" fill="#1d4ed8">ejecutaTEF</text>
-          <text x="1480" y="800" text-anchor="middle" font-size="13" fill="#1d4ed8">Estado 2</text>
-
-          <rect x="1030" y="930" width="300" height="90" rx="16" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
-          <text x="1180" y="964" text-anchor="middle" font-size="18" font-weight="bold" fill="#111827">movDataDetS + histórico</text>
-          <text x="1180" y="988" text-anchor="middle" font-size="13" fill="#475569">senddata</text>
-
-          <line x1="280" y1="96" x2="370" y2="96" stroke="#2563eb" stroke-width="3" marker-end="url(#a2)"/>
-          <line x1="590" y1="96" x2="680" y2="96" stroke="#2563eb" stroke-width="3" marker-end="url(#a2)"/>
-          <line x1="900" y1="96" x2="910" y2="96" stroke="#2563eb" stroke-width="3" opacity="0"/>
-          <line x1="900" y1="96" x2="1060" y2="96" stroke="#2563eb" stroke-width="3" marker-end="url(#a2)"/>
-          <line x1="1210" y1="96" x2="1310" y2="96" stroke="#dc2626" stroke-width="3" marker-end="url(#a2)"/>
-          <line x1="1060" y1="147" x2="1060" y2="220" stroke="#2563eb" stroke-width="3" marker-end="url(#a2)"/>
-          <line x1="1000" y1="320" x2="900" y2="420" stroke="#2563eb" stroke-width="3" marker-end="url(#a2)"/>
-          <line x1="1120" y1="320" x2="1260" y2="420" stroke="#2563eb" stroke-width="3" marker-end="url(#a2)"/>
-          <line x1="890" y1="510" x2="1030" y2="560" stroke="#10b981" stroke-width="3" marker-end="url(#a2)"/>
-          <line x1="1260" y1="510" x2="1150" y2="560" stroke="#10b981" stroke-width="3" marker-end="url(#a2)"/>
-          <line x1="380" y1="465" x2="760" y2="465" stroke="#64748b" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#a2)"/>
-          <line x1="235" y1="510" x2="235" y2="570" stroke="#2563eb" stroke-width="3" marker-end="url(#a2)"/>
-          <line x1="235" y1="660" x2="235" y2="740" stroke="#2563eb" stroke-width="3" marker-end="url(#a2)"/>
-          <line x1="155" y1="860" x2="150" y2="930" stroke="#dc2626" stroke-width="3" marker-end="url(#a2)"/>
-          <line x1="395" y1="800" x2="450" y2="800" stroke="#2563eb" stroke-width="3" marker-end="url(#a2)"/>
-          <line x1="790" y1="780" x2="940" y2="760" stroke="#10b981" stroke-width="3" marker-end="url(#a2)"/>
-          <line x1="790" y1="820" x2="1330" y2="780" stroke="#2563eb" stroke-width="3" marker-end="url(#a2)"/>
-          <line x1="1070" y1="810" x2="1120" y2="930" stroke="#10b981" stroke-width="3" marker-end="url(#a2)"/>
-          <line x1="1480" y1="810" x2="1240" y2="930" stroke="#2563eb" stroke-width="3" marker-end="url(#a2)"/>
-          <line x1="260" y1="975" x2="1030" y2="975" stroke="#64748b" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#a2)"/>
-        </svg>
-      </div>
-      <p class="small">Mapa técnico del ciclo de vida del detalle: desde la validación de entrada hasta la aprobación/rechazo y la persistencia histórica.</p>
-    </div>
-
-    <h2 class="section-title">4. Mapa 3 - Flujo completo de TEF y validaciones críticas</h2>
-    <div class="card">
-      <p>Este mapa se enfoca en el flujo TEF, incluyendo las restricciones actuales más relevantes: existencia previa de Vale Vista, unicidad práctica de TEF y la regla del remanente exacto.</p>
-      <div class="flow">
-        <svg viewBox="0 0 1960 1180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mapa completo TEF">
-          <defs>
-            <marker id="a3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-              <path d="M0,0 L0,6 L9,3 z" fill="#2563eb" />
-            </marker>
-          </defs>
-
-          <rect x="60" y="60" width="230" height="72" rx="16" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
-          <text x="175" y="90" text-anchor="middle" font-size="19" font-weight="bold" fill="#1e3a8a">Aprobar TEF</text>
-          <text x="175" y="112" text-anchor="middle" font-size="13" fill="#334155">approvreject → valTefApr</text>
-
-          <rect x="380" y="60" width="250" height="72" rx="16" fill="#fff" stroke="#94a3b8" stroke-width="2"/>
-          <text x="505" y="90" text-anchor="middle" font-size="18" font-weight="bold" fill="#111827">Calcula acumulados</text>
-          <text x="505" y="112" text-anchor="middle" font-size="13" fill="#475569">sumamt / sumamtv / sumamtt</text>
-
-          <polygon points="800,45 960,96 800,147 640,96" fill="#fff7ed" stroke="#f59e0b" stroke-width="2"/>
-          <text x="800" y="90" text-anchor="middle" font-size="17" font-weight="bold" fill="#92400e">¿Supera saldo?</text>
-          <text x="800" y="112" text-anchor="middle" font-size="12" fill="#92400e">sumamt &gt; OFMOAMH</text>
-
-          <rect x="1070" y="58" width="220" height="76" rx="16" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
-          <text x="1180" y="90" text-anchor="middle" font-size="18" font-weight="bold" fill="#991b1b">Rechaza</text>
-          <text x="1180" y="112" text-anchor="middle" font-size="13" fill="#991b1b">Error 8596</text>
-
-          <polygon points="800,220 980,285 800,350 620,285" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
-          <text x="800" y="278" text-anchor="middle" font-size="17" font-weight="bold" fill="#1d4ed8">¿Compra de cartera?</text>
-          <text x="800" y="300" text-anchor="middle" font-size="12" fill="#1d4ed8">OFMTIPO = C</text>
-
-          <polygon points="800,420 980,485 800,550 620,485" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
-          <text x="800" y="476" text-anchor="middle" font-size="17" font-weight="bold" fill="#065f46">¿Existe al menos</text>
-          <text x="800" y="498" text-anchor="middle" font-size="17" font-weight="bold" fill="#065f46">un VV aprobado?</text>
-
-          <rect x="1080" y="450" width="220" height="74" rx="16" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
-          <text x="1190" y="480" text-anchor="middle" font-size="18" font-weight="bold" fill="#991b1b">Rechaza</text>
-          <text x="1190" y="502" text-anchor="middle" font-size="13" fill="#991b1b">Error 2272</text>
-
-          <polygon points="800,620 980,685 800,750 620,685" fill="#fff7ed" stroke="#f59e0b" stroke-width="2"/>
-          <text x="800" y="678" text-anchor="middle" font-size="17" font-weight="bold" fill="#92400e">¿Ya existe una TEF</text>
-          <text x="800" y="700" text-anchor="middle" font-size="17" font-weight="bold" fill="#92400e">aprobada?</text>
-
-          <rect x="1080" y="650" width="220" height="74" rx="16" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
-          <text x="1190" y="680" text-anchor="middle" font-size="18" font-weight="bold" fill="#991b1b">Rechaza</text>
-          <text x="1190" y="702" text-anchor="middle" font-size="13" fill="#991b1b">Error 7528</text>
-
-          <rect x="1340" y="620" width="300" height="130" rx="16" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
-          <text x="1490" y="654" text-anchor="middle" font-size="18" font-weight="bold" fill="#1d4ed8">Regla remanente exacto</text>
-          <text x="1490" y="678" text-anchor="middle" font-size="13" fill="#1d4ed8">mntTefDif = OFMOAMH - sumamt</text>
-          <text x="1490" y="700" text-anchor="middle" font-size="13" fill="#1d4ed8">La TEF debe ser exactamente</text>
-          <text x="1490" y="720" text-anchor="middle" font-size="13" fill="#1d4ed8">igual al monto restante</text>
-
-          <rect x="1360" y="790" width="260" height="74" rx="16" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
-          <text x="1490" y="820" text-anchor="middle" font-size="18" font-weight="bold" fill="#991b1b">Si no cuadra</text>
-          <text x="1490" y="842" text-anchor="middle" font-size="13" fill="#991b1b">Error 2276</text>
-
-          <rect x="620" y="860" width="360" height="90" rx="16" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
-          <text x="800" y="894" text-anchor="middle" font-size="18" font-weight="bold" fill="#111827">valEjecTef</text>
-          <text x="800" y="918" text-anchor="middle" font-size="13" fill="#475569">Cuenta abono / reglas finales / conttef</text>
-
-          <rect x="620" y="1010" width="360" height="90" rx="16" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
-          <text x="800" y="1044" text-anchor="middle" font-size="18" font-weight="bold" fill="#065f46">ejecutaTEF</text>
-          <text x="800" y="1068" text-anchor="middle" font-size="13" fill="#065f46">getjrnacr + debitjrn + creditjrn + updMontosCab</text>
-
-          <rect x="1120" y="1010" width="260" height="90" rx="16" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
-          <text x="1250" y="1044" text-anchor="middle" font-size="18" font-weight="bold" fill="#111827">Estado final</text>
-          <text x="1250" y="1068" text-anchor="middle" font-size="13" fill="#475569">TEF aprobada (estado 2)</text>
-
-          <line x1="290" y1="96" x2="380" y2="96" stroke="#2563eb" stroke-width="3" marker-end="url(#a3)"/>
-          <line x1="630" y1="96" x2="640" y2="96" stroke="#2563eb" stroke-width="3" opacity="0"/>
-          <line x1="630" y1="96" x2="800" y2="96" stroke="#2563eb" stroke-width="3" marker-end="url(#a3)"/>
-          <line x1="960" y1="96" x2="1070" y2="96" stroke="#dc2626" stroke-width="3" marker-end="url(#a3)"/>
-          <line x1="800" y1="147" x2="800" y2="220" stroke="#2563eb" stroke-width="3" marker-end="url(#a3)"/>
-          <line x1="800" y1="350" x2="800" y2="420" stroke="#2563eb" stroke-width="3" marker-end="url(#a3)"/>
-          <line x1="980" y1="485" x2="1080" y2="487" stroke="#dc2626" stroke-width="3" marker-end="url(#a3)"/>
-          <line x1="800" y1="550" x2="800" y2="620" stroke="#2563eb" stroke-width="3" marker-end="url(#a3)"/>
-          <line x1="980" y1="685" x2="1080" y2="687" stroke="#dc2626" stroke-width="3" marker-end="url(#a3)"/>
-          <line x1="980" y1="685" x2="1340" y2="685" stroke="#2563eb" stroke-width="3" marker-end="url(#a3)"/>
-          <line x1="1490" y1="750" x2="1490" y2="790" stroke="#dc2626" stroke-width="3" marker-end="url(#a3)"/>
-          <line x1="1340" y1="750" x2="980" y2="860" stroke="#2563eb" stroke-width="3" marker-end="url(#a3)"/>
-          <line x1="800" y1="950" x2="800" y2="1010" stroke="#10b981" stroke-width="3" marker-end="url(#a3)"/>
-          <line x1="980" y1="1055" x2="1120" y2="1055" stroke="#10b981" stroke-width="3" marker-end="url(#a3)"/>
-        </svg>
-      </div>
-      <p class="small">Mapa completo del flujo TEF: validaciones de aprobación, regla de remanente exacto, ejecución contable y estado final.</p>
-    </div>
-
-    <h2 class="section-title">5. Reglas clave que explica el mapa</h2>
+    <h2 class="section-title">6. Validaciones clave de monto</h2>
     <div class="card">
       <ul>
-        <li>La suma total de VV + TEF no puede superar el saldo del crédito.</li>
-        <li>En <strong>Compra de Cartera</strong>, debe existir al menos un Vale Vista para aprobar una TEF.</li>
-        <li>La lógica actual trata la TEF como <strong>monto residual final</strong>.</li>
-        <li>En <strong>valTefApr</strong>, la TEF debe ser por el <strong>remanente exacto</strong> después de los VV.</li>
-        <li>Si se quiere permitir más de una TEF, debe modificarse la unicidad actual y también la validación de remanente exacto.</li>
+        <li>La suma total de VV + TEF no puede exceder el saldo del crédito.</li>
+        <li>En Compra de Cartera, debe existir al menos un Vale Vista para poder aprobar una TEF.</li>
+        <li>En Compra de Cartera, la TEF no puede ser por el 100% del crédito.</li>
+        <li><strong>En Compra de Cartera, la TEF debe ser exactamente por el remanente después de los VV.</strong></li>
+        <li>En Flujo Libre, si no hay VV, la TEF puede ir por el 100% del crédito.</li>
       </ul>
     </div>
 
-    <h2 class="section-title">6. Conclusión</h2>
+    <h2 class="section-title">7. Impacto técnico si se permiten múltiples TEF</h2>
     <div class="card">
-      <p>El flujo completo confirma que el proceso actual está diseñado para que, en Compra de Cartera, la TEF ocurra después de los Vale Vista y por el monto residual exacto. Por eso, para soportar múltiples TEF, no basta con permitir varias transferencias: debe redefinirse la lógica funcional del cierre del préstamo.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Punto</th>
+            <th>Situación actual</th>
+            <th>Ajuste requerido</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>TEF única</td>
+            <td>Se restringe por validaciones en aprobación y ejecución.</td>
+            <td>Eliminar o redefinir controles de unicidad.</td>
+          </tr>
+          <tr>
+            <td>Remanente exacto</td>
+            <td>La TEF debe cuadrar exactamente el saldo restante.</td>
+            <td>Redefinir para permitir TEF parciales sin exceder remanente.</td>
+          </tr>
+          <tr>
+            <td>Acumulados de cabecera</td>
+            <td>Se actualizan con la emisión/aprobación actual.</td>
+            <td>Validar que soporten múltiples TEF sucesivas.</td>
+          </tr>
+          <tr>
+            <td>Contabilidad</td>
+            <td>Cada TEF genera journal.</td>
+            <td>Revisar impacto de múltiples asientos por préstamo.</td>
+          </tr>
+          <tr>
+            <td>Orden del flujo</td>
+            <td>Compra de cartera: VV primero y luego TEF residual.</td>
+            <td>Confirmar si negocio mantendrá ese orden.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">8. Conclusión</h2>
+    <div class="card">
+      <p>El análisis confirma que la lógica actual de EOF0150 no solo limita la cantidad de TEF, sino que además trata la TEF como un <strong>monto residual final</strong>. Esto significa que, para <strong>Compra de Cartera</strong>, la TEF debe ejecutarse después de los Vale Vista y por el remanente exacto del crédito.</p>
+      <p>Por lo tanto, si se desea permitir más de una TEF, será necesario modificar:</p>
+      <ol>
+        <li>las validaciones de TEF única,</li>
+        <li>la regla de remanente exacto en <code>valTefApr</code>,</li>
+        <li>la lógica de cierre y acumulación de montos en la cabecera.</li>
+      </ol>
+      <p><span class="badge ok">Recomendación</span> Cambiar la validación desde “TEF exacta final” a “TEF parciales controladas por remanente disponible”, manteniendo la cuadratura final del préstamo.</p>
+    </div>
+
+    <div class="card small">
+      Documento ejecutivo generado para explicar el flujo actual del servicio EOF0150 y el impacto de modificar la lógica de TEF.
     </div>
   </div>
 </body>
