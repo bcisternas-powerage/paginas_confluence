@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EOF0150 - Análisis Ejecutivo de Flujo e Impacto </title>
+  <title>EOF0150 - Análisis Ejecutivo de Flujo e Impacto</title>
   <style>
     :root {
       --bg1: #0b1220;
@@ -186,7 +186,7 @@
   <div class="container">
     <section class="hero">
       <h1>EOF0150 - Análisis Ejecutivo de Flujo, Validaciones e Impacto</h1>
-      <p class="lead">Documento ejecutivo del servicio <strong>EOF0150</strong>, orientado a explicar su flujo funcional, las validaciones críticas de monto y el impacto técnico de modificar la lógica actual para permitir múltiples TEF.</p>
+      <p class="lead">Documento ejecutivo del servicio <strong>EOF0150</strong>, orientado a explicar su flujo funcional, las validaciones críticas de monto y el impacto técnico de modificar la cantidad de transferencias (TEF) permitidas.</p>
       <p class="meta"><strong>Programa:</strong> EOF0150</p>
       <p class="meta"><strong>Función:</strong> Mantenedor de Vale Vista Digital</p>
       <p class="meta"><strong>Fecha documento:</strong> 2026-05-12</p>
@@ -223,7 +223,7 @@
     <section class="grid-2">
       <div class="card">
         <h3>Qué hace el servicio</h3>
-        <p>EOF0150 administra solicitudes de pago asociadas a préstamos, controlando una cabecera por préstamo y múltiples detalles de pago, que pueden corresponder a <strong>Vale Vista</strong> o <strong>TEF</strong>.</p>
+        <p>EOF0150 administra solicitudes de pago asociadas a préstamos, controlando una cabecera por préstamo y múltiples detalles de pago, que pueden corresponder a <strong>Vale Vista</strong> (cheques) o <strong>TEF</strong> (transferencias electrónicas).</p>
       </div>
       <div class="card">
         <h3>Qué controla</h3>
@@ -303,14 +303,14 @@
     <h2 class="section-title">3. Regla crítica de negocio para TEF</h2>
     <div class="card">
       <h3>Validación faltante que debe quedar explícita</h3>
-      <p>En la rutina <code>valTefApr</code> existe una validación clave: para <strong>Compra de Cartera</strong>, la TEF no puede ser por un monto libre, sino que debe ser por el <strong>remanente exacto</strong> que queda luego de considerar los Vale Vista y demás montos ya aprobados o emitidos.</p>
+      <p>En la rutina <code>valTefApr</code> existe una validación clave: para <strong>Compra de Cartera</strong>, la TEF no puede ser por un monto libre, sino que debe ser por el <strong>remanente exacto</strong> del crédito después de los Vale Vista emitidos.</p>
       <p>La lógica observada es:</p>
       <ul>
         <li>se acumulan los montos ya aprobados o emitidos,</li>
         <li>se calcula <code>mntTefDif = OFMOAMH - sumamt</code>,</li>
         <li>si el flujo es <code>OFMTIPO = 'C'</code> y el remanente no cuadra exactamente, se lanza error <code>2276</code>.</li>
       </ul>
-      <p><strong>Interpretación funcional:</strong> la TEF actual actúa como pago residual final del préstamo. Por lo tanto, hoy la TEF debe ser exactamente igual al monto restante después de los Vale Vista; no puede ser ni menor ni mayor.</p>
+      <p><strong>Interpretación funcional:</strong> la TEF actual actúa como pago residual final del préstamo. Por lo tanto, hoy la TEF debe ser exactamente igual al monto restante después de todos los Vale Vista.</p>
 
       <table>
         <thead>
@@ -476,14 +476,14 @@
 
     <h2 class="section-title">8. Conclusión</h2>
     <div class="card">
-      <p>El análisis confirma que la lógica actual de EOF0150 no solo limita la cantidad de TEF, sino que además trata la TEF como un <strong>monto residual final</strong>. Esto significa que, para <strong>Compra de Cartera</strong>, la TEF debe ejecutarse después de los Vale Vista y por el remanente exacto del crédito.</p>
+      <p>El análisis confirma que la lógica actual de EOF0150 no solo limita la cantidad de TEF, sino que además trata la TEF como un <strong>monto residual final</strong>. Esto significa que, en compra de cartera, la TEF cierra exactamente el flujo de pagos.</p>
       <p>Por lo tanto, si se desea permitir más de una TEF, será necesario modificar:</p>
       <ol>
         <li>las validaciones de TEF única,</li>
         <li>la regla de remanente exacto en <code>valTefApr</code>,</li>
         <li>la lógica de cierre y acumulación de montos en la cabecera.</li>
       </ol>
-      <p><span class="badge ok">Recomendación</span> Cambiar la validación desde “TEF exacta final” a “TEF parciales controladas por remanente disponible”, manteniendo la cuadratura final del préstamo.</p>
+      <p><span class="badge ok">Recomendación</span> Cambiar la validación desde "TEF exacta final" a "TEF parciales controladas por remanente disponible", manteniendo la cuadratura final correcta.</p>
     </div>
 
     <div class="card small">
