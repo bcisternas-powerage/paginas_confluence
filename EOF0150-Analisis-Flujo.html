@@ -3,619 +3,491 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EOF0150 - Análisis de Flujo, Validaciones e Impacto</title>
+  <title>EOF0150 - Análisis Ejecutivo de Flujo e Impacto</title>
   <style>
     :root {
-      --bg: #f7f9fc;
-      --card: #ffffff;
+      --bg1: #0b1220;
+      --bg2: #172554;
+      --panel: rgba(255, 255, 255, 0.94);
+      --panel-strong: #ffffff;
       --text: #1f2937;
       --muted: #6b7280;
-      --accent: #0f62fe;
+      --accent: #2563eb;
       --accent-soft: #dbeafe;
       --border: #d1d5db;
       --danger: #b91c1c;
       --warn: #b45309;
       --ok: #047857;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
     }
+
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: var(--bg);
       color: var(--text);
-      line-height: 1.5;
+      line-height: 1.55;
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.32), transparent 28%),
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.22), transparent 22%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      background-attachment: fixed;
     }
+
     .container {
-      max-width: 1200px;
+      max-width: 1180px;
       margin: 0 auto;
-      padding: 32px 20px 60px;
+      padding: 36px 20px 60px;
     }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(239,246,255,0.94));
+      border: 1px solid rgba(255,255,255,0.55);
+      border-radius: 22px;
+      padding: 30px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+    }
+
     h1, h2, h3, h4 {
-      margin-top: 1.4em;
-      margin-bottom: 0.5em;
       color: #111827;
-    }
-    h1 {
       margin-top: 0;
-      font-size: 2rem;
-      border-bottom: 3px solid var(--accent);
-      padding-bottom: 12px;
     }
-    h2 {
-      border-left: 6px solid var(--accent);
-      padding-left: 12px;
-      background: #eef4ff;
-      padding-top: 8px;
-      padding-bottom: 8px;
+
+    h1 {
+      font-size: 2.1rem;
+      margin-bottom: 10px;
     }
+
+    h2.section-title {
+      margin: 28px 0 14px;
+      color: #f8fafc;
+      font-size: 1.25rem;
+      letter-spacing: .02em;
+    }
+
+    .lead {
+      color: #334155;
+      font-size: 1.02rem;
+      margin-bottom: 0;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 18px;
+    }
+
     .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 18px 20px;
-      margin: 18px 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 18px;
+      padding: 20px 22px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(6px);
+      margin-bottom: 18px;
     }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .summary-box {
+      background: rgba(255,255,255,0.88);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .summary-box h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+    }
+
     .meta {
       color: var(--muted);
       font-size: 0.95rem;
+      margin: 4px 0;
     }
+
     .badge {
       display: inline-block;
-      padding: 3px 8px;
+      padding: 4px 9px;
       border-radius: 999px;
-      font-size: 0.82rem;
-      margin-right: 6px;
-      margin-bottom: 6px;
+      font-size: 0.8rem;
+      margin: 4px 6px 0 0;
       border: 1px solid var(--border);
       background: #f3f4f6;
     }
+
     .danger { background: #fee2e2; color: var(--danger); border-color: #fecaca; }
     .warn { background: #fef3c7; color: var(--warn); border-color: #fde68a; }
     .ok { background: #d1fae5; color: var(--ok); border-color: #a7f3d0; }
     .accent { background: var(--accent-soft); color: #1e3a8a; border-color: #bfdbfe; }
-    code, pre {
-      font-family: Consolas, Monaco, monospace;
-    }
-    pre {
-      background: #0f172a;
-      color: #e5e7eb;
-      padding: 14px;
-      border-radius: 8px;
-      overflow-x: auto;
-      white-space: pre-wrap;
-    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      margin: 12px 0;
-      background: white;
+      margin: 10px 0 4px;
+      background: var(--panel-strong);
+      border-radius: 12px;
+      overflow: hidden;
     }
+
     th, td {
-      border: 1px solid var(--border);
+      border: 1px solid #e5e7eb;
       padding: 10px;
       text-align: left;
       vertical-align: top;
     }
+
     th {
       background: #eff6ff;
     }
+
     ul, ol {
       padding-left: 22px;
+      margin-bottom: 0;
     }
-    .toc a {
-      text-decoration: none;
-      color: var(--accent);
+
+    code {
+      background: #eff6ff;
+      padding: 1px 6px;
+      border-radius: 6px;
+      color: #1d4ed8;
     }
+
+    .flow {
+      margin-top: 14px;
+      overflow-x: auto;
+    }
+
+    .flow svg {
+      width: 100%;
+      height: auto;
+      min-width: 820px;
+      background: linear-gradient(180deg, #f8fbff, #eef5ff);
+      border: 1px solid #dbeafe;
+      border-radius: 16px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+    }
+
     .small {
-      font-size: 0.92rem;
       color: var(--muted);
+      font-size: 0.92rem;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>EOF0150 - Análisis de Flujo, Validaciones, Riesgos e Impacto por ampliación de TEF</h1>
-
-    <div class="card">
+    <section class="hero">
+      <h1>EOF0150 - Análisis Ejecutivo de Flujo, Validaciones e Impacto</h1>
+      <p class="lead">Documento ejecutivo del servicio <strong>EOF0150</strong>, orientado a explicar su flujo funcional, las validaciones críticas de monto y el impacto técnico de modificar la lógica actual para permitir múltiples TEF.</p>
       <p class="meta"><strong>Programa:</strong> EOF0150</p>
       <p class="meta"><strong>Función:</strong> Mantenedor de Vale Vista Digital</p>
-      <p class="meta"><strong>Fuente analizada:</strong> código RPG provisto en conversación</p>
       <p class="meta"><strong>Fecha documento:</strong> 2026-05-12</p>
       <div>
         <span class="badge accent">Cabecera</span>
         <span class="badge accent">Detalle</span>
         <span class="badge accent">Vale Vista</span>
         <span class="badge accent">TEF</span>
-        <span class="badge warn">Concurrencia</span>
+        <span class="badge warn">Regla remanente exacto</span>
         <span class="badge danger">Sin commit</span>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-box">
+          <h3>Conclusión principal</h3>
+          <p>Hoy el flujo está diseñado para que la <strong>TEF sea residual</strong> y en la práctica opere como una sola TEF por préstamo.</p>
+        </div>
+        <div class="summary-box">
+          <h3>Regla crítica</h3>
+          <p>En compra de cartera, la TEF debe ser por el <strong>monto remanente exacto</strong> después de los Vale Vista.</p>
+        </div>
+        <div class="summary-box">
+          <h3>Orden del flujo</h3>
+          <p>Para <strong>Compra de Cartera</strong>, primero deben existir/aprobarse Vale Vista y luego se aprueba la TEF.</p>
+        </div>
+        <div class="summary-box">
+          <h3>Impacto del cambio</h3>
+          <p>Permitir más de una TEF obliga a rediseñar la validación de remanente y la cuadratura final.</p>
+        </div>
+      </div>
+    </section>
+
+    <h2 class="section-title">1. Resumen ejecutivo</h2>
+    <section class="grid-2">
+      <div class="card">
+        <h3>Qué hace el servicio</h3>
+        <p>EOF0150 administra solicitudes de pago asociadas a préstamos, controlando una cabecera por préstamo y múltiples detalles de pago, que pueden corresponder a <strong>Vale Vista</strong> o <strong>TEF</strong>.</p>
+      </div>
+      <div class="card">
+        <h3>Qué controla</h3>
+        <p>El servicio controla estados, montos acumulados, validaciones de negocio, aprobación/rechazo, emisión de Vale Vista y ejecución contable de la TEF.</p>
+      </div>
+    </section>
+
+    <h2 class="section-title">2. Flujo ejecutivo del proceso</h2>
+    <div class="card">
+      <p>El proceso operativo se puede resumir así:</p>
+      <ol>
+        <li>Se crea o consulta la <strong>cabecera</strong> del préstamo.</li>
+        <li>Se registran uno o más <strong>detalles</strong> de pago.</li>
+        <li>Los detalles pueden ser <strong>Vale Vista</strong> o <strong>TEF</strong>.</li>
+        <li>Los Vale Vista pasan por aprobación y emisión.</li>
+        <li>La TEF se valida contra el monto restante y luego se ejecuta.</li>
+        <li>Finalmente se actualizan los acumulados de la cabecera.</li>
+      </ol>
+
+      <div class="flow">
+        <svg viewBox="0 0 1200 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Flujo ejecutivo EOF0150">
+          <defs>
+            <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#2563eb" />
+            </marker>
+          </defs>
+
+          <rect x="40" y="140" width="160" height="70" rx="14" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+          <text x="120" y="170" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e3a8a">Inicio</text>
+          <text x="120" y="192" text-anchor="middle" font-size="13" fill="#334155">Recepción formato</text>
+
+          <rect x="250" y="140" width="180" height="70" rx="14" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+          <text x="340" y="170" text-anchor="middle" font-size="18" font-weight="bold" fill="#111827">Cabecera</text>
+          <text x="340" y="192" text-anchor="middle" font-size="13" fill="#475569">Crear / consultar</text>
+
+          <rect x="480" y="140" width="180" height="70" rx="14" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+          <text x="570" y="170" text-anchor="middle" font-size="18" font-weight="bold" fill="#111827">Detalle</text>
+          <text x="570" y="192" text-anchor="middle" font-size="13" fill="#475569">VV o TEF</text>
+
+          <polygon points="740,120 880,175 740,230 600,175" fill="#fff7ed" stroke="#f59e0b" stroke-width="2"/>
+          <text x="740" y="170" text-anchor="middle" font-size="16" font-weight="bold" fill="#92400e">¿Tipo de detalle?</text>
+          <text x="740" y="190" text-anchor="middle" font-size="12" fill="#92400e">Vale Vista / TEF</text>
+
+          <rect x="950" y="60" width="180" height="70" rx="14" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+          <text x="1040" y="90" text-anchor="middle" font-size="17" font-weight="bold" fill="#065f46">Vale Vista</text>
+          <text x="1040" y="112" text-anchor="middle" font-size="13" fill="#065f46">Aprueba y emite</text>
+
+          <rect x="950" y="250" width="180" height="84" rx="14" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+          <text x="1040" y="280" text-anchor="middle" font-size="17" font-weight="bold" fill="#1d4ed8">TEF</text>
+          <text x="1040" y="302" text-anchor="middle" font-size="13" fill="#1d4ed8">Valida remanente</text>
+          <text x="1040" y="320" text-anchor="middle" font-size="13" fill="#1d4ed8">y ejecuta</text>
+
+          <rect x="950" y="360" width="180" height="48" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+          <text x="1040" y="390" text-anchor="middle" font-size="15" font-weight="bold" fill="#111827">Actualiza cabecera</text>
+
+          <line x1="200" y1="175" x2="250" y2="175" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow)"/>
+          <line x1="430" y1="175" x2="480" y2="175" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow)"/>
+          <line x1="660" y1="175" x2="600" y2="175" stroke="#2563eb" stroke-width="3" opacity="0"/>
+          <line x1="660" y1="175" x2="600" y2="175" stroke="#2563eb" stroke-width="3" opacity="0"/>
+          <line x1="660" y1="175" x2="600" y2="175" stroke="#2563eb" stroke-width="3" opacity="0"/>
+          <line x1="660" y1="175" x2="600" y2="175" stroke="#2563eb" stroke-width="3" opacity="0"/>
+          <line x1="660" y1="175" x2="600" y2="175" stroke="#2563eb" stroke-width="3" opacity="0"/>
+          <line x1="660" y1="175" x2="600" y2="175" stroke="#2563eb" stroke-width="3" opacity="0"/>
+          <line x1="660" y1="175" x2="740" y2="175" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow)"/>
+          <line x1="880" y1="145" x2="950" y2="95" stroke="#10b981" stroke-width="3" marker-end="url(#arrow)"/>
+          <line x1="880" y1="205" x2="950" y2="292" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow)"/>
+          <line x1="1040" y1="130" x2="1040" y2="360" stroke="#64748b" stroke-width="2.5" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
+          <line x1="1040" y1="334" x2="1040" y2="360" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow)"/>
+
+          <text x="905" y="115" font-size="12" fill="#065f46">VV</text>
+          <text x="900" y="250" font-size="12" fill="#1d4ed8">TEF</text>
+        </svg>
+      </div>
+      <p class="small">Diagrama ejecutivo simplificado del flujo principal del servicio.</p>
+    </div>
+
+    <h2 class="section-title">3. Regla crítica de negocio para TEF</h2>
+    <div class="card">
+      <h3>Validación faltante que debe quedar explícita</h3>
+      <p>En la rutina <code>valTefApr</code> existe una validación clave: para <strong>Compra de Cartera</strong>, la TEF no puede ser por un monto libre, sino que debe ser por el <strong>remanente exacto</strong> que queda luego de considerar los Vale Vista y demás montos ya aprobados o emitidos.</p>
+      <p>La lógica observada es:</p>
+      <ul>
+        <li>se acumulan los montos ya aprobados o emitidos,</li>
+        <li>se calcula <code>mntTefDif = OFMOAMH - sumamt</code>,</li>
+        <li>si el flujo es <code>OFMTIPO = 'C'</code> y el remanente no cuadra exactamente, se lanza error <code>2276</code>.</li>
+      </ul>
+      <p><strong>Interpretación funcional:</strong> la TEF actual actúa como pago residual final del préstamo. Por lo tanto, hoy la TEF debe ser exactamente igual al monto restante después de los Vale Vista; no puede ser ni menor ni mayor.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Ejemplo</th>
+            <th>Crédito</th>
+            <th>VV acumulados</th>
+            <th>Remanente</th>
+            <th>TEF permitida hoy</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Escenario 1</td>
+            <td>100.000</td>
+            <td>70.000</td>
+            <td>30.000</td>
+            <td>Solo 30.000</td>
+          </tr>
+          <tr>
+            <td>Escenario 2</td>
+            <td>100.000</td>
+            <td>80.000</td>
+            <td>20.000</td>
+            <td>Solo 20.000</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p><span class="badge warn">Importante</span> Para permitir múltiples TEF, esta validación debe rediseñarse. No basta con quitar la restricción de TEF única.</p>
+    </div>
+
+    <h2 class="section-title">4. Orden actual del flujo</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Compra de Cartera (<code>OFMTIPO = 'C'</code>)</h3>
+        <ul>
+          <li>Debe existir al menos un Vale Vista previo.</li>
+          <li>La TEF no puede ser por el 100% del crédito.</li>
+          <li>La TEF debe ser por el remanente exacto.</li>
+          <li>En la práctica: <strong>primero Vale Vista, luego TEF</strong>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Flujo Libre (<code>OFMTIPO = 'L'</code>)</h3>
+        <ul>
+          <li>Puede operar con TEF al 100% si no existen VV.</li>
+          <li>Si no hay VV, la TEF debe cuadrar el total del crédito.</li>
+          <li>La lógica es menos restrictiva que en compra de cartera.</li>
+        </ul>
       </div>
     </div>
 
-    <div class="card toc">
-      <h2>Índice</h2>
-      <ol>
-        <li><a href="#resumen">Resumen ejecutivo</a></li>
-        <li><a href="#objetivo">Objetivo funcional del programa</a></li>
-        <li><a href="#flujo-general">Flujo general</a></li>
-        <li><a href="#formatos">Formatos de entrada y operaciones</a></li>
-        <li><a href="#cabecera">Cabecera: creación, consulta y eliminación</a></li>
-        <li><a href="#detalle">Detalle: creación, edición, consulta y eliminación</a></li>
-        <li><a href="#aprobacion">Aprobación y rechazo</a></li>
-        <li><a href="#tef">Ejecución TEF</a></li>
-        <li><a href="#validaciones">Validaciones funcionales y técnicas</a></li>
-        <li><a href="#restriccion">Dónde está la restricción de una sola TEF</a></li>
-        <li><a href="#modificacion">Qué modificar para permitir múltiples TEF</a></li>
-        <li><a href="#impacto">Impacto esperado del cambio</a></li>
-        <li><a href="#riesgos">Riesgos y vulnerabilidades</a></li>
-        <li><a href="#pruebas">Casos de prueba sugeridos</a></li>
-        <li><a href="#conclusion">Conclusión</a></li>
-      </ol>
+    <h2 class="section-title">5. Diagrama ejecutivo de validación TEF</h2>
+    <div class="card">
+      <div class="flow">
+        <svg viewBox="0 0 1280 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama validación TEF">
+          <defs>
+            <marker id="arrow2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#2563eb" />
+            </marker>
+          </defs>
+
+          <rect x="60" y="70" width="180" height="64" rx="14" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+          <text x="150" y="98" text-anchor="middle" font-size="17" font-weight="bold" fill="#1e3a8a">Inicio validación</text>
+          <text x="150" y="118" text-anchor="middle" font-size="13" fill="#334155">valTefApr</text>
+
+          <rect x="310" y="70" width="220" height="64" rx="14" fill="#fff" stroke="#94a3b8" stroke-width="2"/>
+          <text x="420" y="96" text-anchor="middle" font-size="16" font-weight="bold" fill="#111827">Calcula acumulados</text>
+          <text x="420" y="116" text-anchor="middle" font-size="13" fill="#475569">VV + TEF ya aprobados</text>
+
+          <polygon points="655,55 790,102 655,149 520,102" fill="#fff7ed" stroke="#f59e0b" stroke-width="2"/>
+          <text x="655" y="98" text-anchor="middle" font-size="15" font-weight="bold" fill="#92400e">¿Supera saldo?</text>
+          <text x="655" y="116" text-anchor="middle" font-size="12" fill="#92400e">sumamt &gt; OFMOAMH</text>
+
+          <rect x="860" y="35" width="180" height="64" rx="14" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+          <text x="950" y="62" text-anchor="middle" font-size="17" font-weight="bold" fill="#991b1b">Rechaza</text>
+          <text x="950" y="84" text-anchor="middle" font-size="13" fill="#991b1b">Error 8596</text>
+
+          <polygon points="655,190 805,245 655,300 505,245" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+          <text x="655" y="240" text-anchor="middle" font-size="15" font-weight="bold" fill="#1d4ed8">¿Compra de cartera?</text>
+          <text x="655" y="258" text-anchor="middle" font-size="12" fill="#1d4ed8">OFMTIPO = C</text>
+
+          <polygon points="655,340 825,395 655,450 485,395" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+          <text x="655" y="386" text-anchor="middle" font-size="15" font-weight="bold" fill="#065f46">¿Existe al menos</text>
+          <text x="655" y="404" text-anchor="middle" font-size="15" font-weight="bold" fill="#065f46">un Vale Vista?</text>
+
+          <rect x="1040" y="214" width="180" height="70" rx="14" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+          <text x="1130" y="244" text-anchor="middle" font-size="17" font-weight="bold" fill="#991b1b">Rechaza</text>
+          <text x="1130" y="264" text-anchor="middle" font-size="13" fill="#991b1b">Error 2272</text>
+
+          <rect x="980" y="360" width="230" height="84" rx="14" fill="#fff7ed" stroke="#f59e0b" stroke-width="2"/>
+          <text x="1095" y="388" text-anchor="middle" font-size="16" font-weight="bold" fill="#92400e">Regla remanente exacto</text>
+          <text x="1095" y="408" text-anchor="middle" font-size="13" fill="#92400e">TEF debe ser igual al</text>
+          <text x="1095" y="426" text-anchor="middle" font-size="13" fill="#92400e">monto restante</text>
+
+          <rect x="980" y="470" width="230" height="34" rx="10" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+          <text x="1095" y="492" text-anchor="middle" font-size="14" font-weight="bold" fill="#065f46">Si no cuadra: Error 2276</text>
+
+          <line x1="240" y1="102" x2="310" y2="102" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow2)"/>
+          <line x1="530" y1="102" x2="520" y2="102" stroke="#2563eb" stroke-width="3" opacity="0"/>
+          <line x1="530" y1="102" x2="655" y2="102" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow2)"/>
+          <line x1="790" y1="84" x2="860" y2="67" stroke="#dc2626" stroke-width="3" marker-end="url(#arrow2)"/>
+          <line x1="655" y1="149" x2="655" y2="190" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow2)"/>
+          <line x1="805" y1="245" x2="1040" y2="245" stroke="#dc2626" stroke-width="3" marker-end="url(#arrow2)"/>
+          <line x1="655" y1="300" x2="655" y2="340" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow2)"/>
+          <line x1="825" y1="395" x2="980" y2="395" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow2)"/>
+        </svg>
+      </div>
+      <p class="small">Este diagrama muestra la regla más relevante para el cambio solicitado: hoy la TEF, en compra de cartera, debe cuadrar exactamente el remanente.</p>
     </div>
 
-    <h2 id="resumen">1. Resumen ejecutivo</h2>
+    <h2 class="section-title">6. Validaciones clave de monto</h2>
     <div class="card">
-      <p>El programa <strong>EOF0150</strong> administra el flujo de <strong>Vale Vista Digital</strong> asociado a préstamos, trabajando con dos niveles principales:</p>
       <ul>
-        <li><strong>Cabecera</strong> de la solicitud por préstamo.</li>
-        <li><strong>Detalles</strong> de instrumentos asociados al préstamo: <strong>Vale Vista</strong> o <strong>TEF</strong>.</li>
+        <li>La suma total de VV + TEF no puede exceder el saldo del crédito.</li>
+        <li>En Compra de Cartera, debe existir al menos un Vale Vista para poder aprobar una TEF.</li>
+        <li>En Compra de Cartera, la TEF no puede ser por el 100% del crédito.</li>
+        <li><strong>En Compra de Cartera, la TEF debe ser exactamente por el remanente después de los VV.</strong></li>
+        <li>En Flujo Libre, si no hay VV, la TEF puede ir por el 100% del crédito.</li>
       </ul>
-      <p>El programa permite consultar, crear, actualizar, eliminar lógicamente, aprobar y rechazar registros, además de emitir automáticamente vales vista y ejecutar el registro contable de una TEF.</p>
-      <p>Del análisis del código se concluye que <strong>sí existe actualmente una restricción funcional para permitir solo una TEF aprobada por préstamo</strong>. Esa restricción no está concentrada en un único punto, sino en varias validaciones de negocio.</p>
-      <p>Si se quiere permitir <strong>múltiples transferencias sin límite</strong>, no basta con eliminar una validación: hay que revisar la cuadratura de montos, el cierre de cabecera, la contabilidad generada por cada aprobación y los riesgos de concurrencia.</p>
     </div>
 
-    <h2 id="objetivo">2. Objetivo funcional del programa</h2>
-    <div class="card">
-      <p>EOF0150 funciona como mantenedor del proceso de pago asociado a un préstamo, controlando el uso del monto disponible a través de:</p>
-      <ul>
-        <li>uno o varios <strong>Vales Vista</strong>, y/o</li>
-        <li>una o varias <strong>TEF</strong> (según cambio solicitado).</li>
-      </ul>
-      <p>El sistema resguarda que la suma total de los instrumentos no supere el saldo definido para el préstamo y actualiza acumulados a nivel cabecera.</p>
-    </div>
-
-    <h2 id="flujo-general">3. Flujo general</h2>
-    <div class="card">
-<pre>Entrada programa (port, rformat, rbuffer)
-    -> identifica formato
-    -> mueve buffer a estructura correspondiente
-    -> según código de operación llama subrutina
-
-Cabecera
-    -> listar / crear / actualizar / eliminar lógico
-
-Detalle
-    -> listar / crear / actualizar / eliminar / aprobar / rechazar
-
-Aprobación
-    -> para VV: aprobación comercial y luego operacional
-    -> para TEF: aprobación comercial ejecuta la TEF y deja estado aprobado
-
-Post-proceso
-    -> actualizar montos de cabecera
-    -> grabar histórico
-    -> responder por socket</pre>
-    </div>
-
-    <h2 id="formatos">4. Formatos de entrada y operaciones</h2>
+    <h2 class="section-title">7. Impacto técnico si se permiten múltiples TEF</h2>
     <div class="card">
       <table>
         <thead>
           <tr>
-            <th>Formato</th>
-            <th>Operación</th>
-            <th>Subrutina</th>
-            <th>Descripción</th>
+            <th>Punto</th>
+            <th>Situación actual</th>
+            <th>Ajuste requerido</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>EOF015001</td>
-            <td>0001</td>
-            <td>sendlistc</td>
-            <td>Lista cabeceras por estado, con filtros opcionales por RUT o número de cliente.</td>
+            <td>TEF única</td>
+            <td>Se restringe por validaciones en aprobación y ejecución.</td>
+            <td>Eliminar o redefinir controles de unicidad.</td>
           </tr>
           <tr>
-            <td>EOF015001</td>
-            <td>0002</td>
-            <td>sendlistc2</td>
-            <td>Lista cabecera por número de préstamo.</td>
+            <td>Remanente exacto</td>
+            <td>La TEF debe cuadrar exactamente el saldo restante.</td>
+            <td>Redefinir para permitir TEF parciales sin exceder remanente.</td>
           </tr>
           <tr>
-            <td>EOF015001</td>
-            <td>0003</td>
-            <td>newHeader</td>
-            <td>Crea o actualiza cabecera.</td>
+            <td>Acumulados de cabecera</td>
+            <td>Se actualizan con la emisión/aprobación actual.</td>
+            <td>Validar que soporten múltiples TEF sucesivas.</td>
           </tr>
           <tr>
-            <td>EOF015001</td>
-            <td>0004</td>
-            <td>suprrecord</td>
-            <td>Elimina lógicamente la cabecera.</td>
+            <td>Contabilidad</td>
+            <td>Cada TEF genera journal.</td>
+            <td>Revisar impacto de múltiples asientos por préstamo.</td>
           </tr>
           <tr>
-            <td>EOF015002</td>
-            <td>0001</td>
-            <td>sendlistd</td>
-            <td>Lista detalles por préstamo.</td>
-          </tr>
-          <tr>
-            <td>EOF015002</td>
-            <td>0002</td>
-            <td>sendlistd2</td>
-            <td>Lista detalle por número de vale vista.</td>
-          </tr>
-          <tr>
-            <td>EOF015002</td>
-            <td>0003</td>
-            <td>newDetail</td>
-            <td>Crea o actualiza detalle.</td>
-          </tr>
-          <tr>
-            <td>EOF015002</td>
-            <td>0004</td>
-            <td>suprdetail</td>
-            <td>Elimina un detalle.</td>
-          </tr>
-          <tr>
-            <td>EOF015002</td>
-            <td>0005</td>
-            <td>approvreject</td>
-            <td>Aprueba o rechaza detalle.</td>
-          </tr>
-          <tr>
-            <td>EOF015003</td>
-            <td>0001</td>
-            <td>sendlistc3</td>
-            <td>Lista préstamos por cliente o RUT.</td>
+            <td>Orden del flujo</td>
+            <td>Compra de cartera: VV primero y luego TEF residual.</td>
+            <td>Confirmar si negocio mantendrá ese orden.</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <h2 id="cabecera">5. Cabecera: creación, consulta y eliminación</h2>
+    <h2 class="section-title">8. Conclusión</h2>
     <div class="card">
-      <h3>5.1 Función</h3>
-      <p>La cabecera representa la solicitud principal asociada a un préstamo.</p>
-
-      <h3>5.2 Campos funcionales relevantes</h3>
-      <ul>
-        <li><strong>OFMACCH</strong>: número de préstamo.</li>
-        <li><strong>OFMSTSH</strong>: estado de la cabecera.</li>
-        <li><strong>OFMTIPO</strong>: tipo de flujo (<code>C</code> compra de cartera, <code>L</code> libre).</li>
-        <li><strong>OFMOAMH</strong>: saldo o monto base utilizable.</li>
-        <li><strong>OFMOTVV</strong>: total acumulado en vales vista.</li>
-        <li><strong>OFMVDCH</strong>: cantidad de vales vista.</li>
-        <li><strong>OFMOTEF</strong>: total acumulado en TEF.</li>
-        <li><strong>OFMCTEF</strong>: cantidad de TEF.</li>
-      </ul>
-
-      <h3>5.3 Creación/actualización</h3>
-      <p>La subrutina <code>newHeader</code> primero llama a <code>valHeader</code>. Si no hay errores:</p>
-      <ul>
-        <li>Si la cabecera existe: actualiza datos.</li>
-        <li>Si no existe: la crea con estado inicial 1.</li>
-        <li>Luego escribe histórico en <code>OFMVDHRH</code>.</li>
-      </ul>
-
-      <h3>5.4 Eliminación lógica</h3>
-      <p><code>suprrecord</code> no borra físicamente la cabecera; la deja en estado 5 y actualiza usuario y timestamp.</p>
-    </div>
-
-    <h2 id="detalle">6. Detalle: creación, edición, consulta y eliminación</h2>
-    <div class="card">
-      <h3>6.1 Función</h3>
-      <p>El detalle representa una instrucción individual de pago, la cual puede ser:</p>
-      <ul>
-        <li><strong>Vale Vista</strong> (<code>REGTIP = 'V'</code>)</li>
-        <li><strong>TEF</strong> (<code>REGTIP = 'T'</code>)</li>
-      </ul>
-
-      <h3>6.2 Estados observados</h3>
-      <table>
-        <thead>
-          <tr><th>Estado</th><th>Interpretación inferida</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>1</td><td>Creado / editable</td></tr>
-          <tr><td>2</td><td>Aprobado comercialmente</td></tr>
-          <tr><td>3</td><td>Rechazado en primera etapa</td></tr>
-          <tr><td>4</td><td>Aprobado final / emitido</td></tr>
-          <tr><td>5</td><td>Rechazado en segunda etapa</td></tr>
-        </tbody>
-      </table>
-
-      <h3>6.3 Alta/edición</h3>
-      <p><code>newDetail</code> realiza:</p>
+      <p>El análisis confirma que la lógica actual de EOF0150 no solo limita la cantidad de TEF, sino que además trata la TEF como un <strong>monto residual final</strong>. Esto significa que, para <strong>Compra de Cartera</strong>, la TEF debe ejecutarse después de los Vale Vista y por el remanente exacto del crédito.</p>
+      <p>Por lo tanto, si se desea permitir más de una TEF, será necesario modificar:</p>
       <ol>
-        <li>carga defaults con <code>movDataDetG</code>,</li>
-        <li>valida con <code>valDetail</code>,</li>
-        <li>si la cabecera estaba en estado 1, la mueve a estado 3 (en proceso),</li>
-        <li>si el detalle existe: actualiza,</li>
-        <li>si no existe: genera número, crea registro y escribe histórico.</li>
+        <li>las validaciones de TEF única,</li>
+        <li>la regla de remanente exacto en <code>valTefApr</code>,</li>
+        <li>la lógica de cierre y acumulación de montos en la cabecera.</li>
       </ol>
-
-      <h3>6.4 Eliminación</h3>
-      <p>Se permite eliminar solo si el detalle está en estados editables o rechazados: 1, 3 o 5.</p>
-    </div>
-
-    <h2 id="aprobacion">7. Aprobación y rechazo</h2>
-    <div class="card">
-      <h3>7.1 Vale Vista</h3>
-      <ul>
-        <li>Si está en estado 1 y se aprueba: pasa a 2.</li>
-        <li>Si está en estado 2 y se aprueba: pasa a 4, actualiza montos de cabecera y ejecuta emisión automática.</li>
-      </ul>
-
-      <h3>7.2 TEF</h3>
-      <ul>
-        <li>Si está en estado 1 y se aprueba: se llama <code>ejecutaTEF</code>.</li>
-        <li>Si la ejecución no genera errores: pasa a estado 2.</li>
-      </ul>
-
-      <h3>7.3 Rechazo</h3>
-      <ul>
-        <li>Si el detalle está en 1: pasa a 3.</li>
-        <li>Si está en 2: pasa a 5.</li>
-        <li>El motivo queda en <code>OFMSGRVD</code>.</li>
-      </ul>
-    </div>
-
-    <h2 id="tef">8. Ejecución TEF</h2>
-    <div class="card">
-      <p>La subrutina <code>ejecutaTEF</code> realiza el flujo contable de una transferencia:</p>
-      <ol>
-        <li>Valida mediante <code>valEjecTef</code>.</li>
-        <li>Obtiene referencia transaccional con <code>getjrnacr</code>.</li>
-        <li>Obtiene batch con <code>@tdopecon</code>.</li>
-        <li>Lee préstamo y cuenta de abono.</li>
-        <li>Obtiene cuenta contable destino con <code>getDestino</code>.</li>
-        <li>Busca cuenta GL.</li>
-        <li>Genera journal de débito y crédito.</li>
-        <li>Actualiza montos de cabecera.</li>
-      </ol>
-      <p>Este punto es sensible: al permitir múltiples TEF, cada una generará su propio journal y sus propios impactos contables.</p>
-    </div>
-
-    <h2 id="validaciones">9. Validaciones funcionales y técnicas</h2>
-    <div class="card">
-      <h3>9.1 Validaciones de cabecera (<code>valHeader</code>)</h3>
-      <ul>
-        <li>Préstamo obligatorio.</li>
-        <li>Descripción obligatoria.</li>
-        <li>Identificación/RUT obligatoria.</li>
-        <li>El préstamo debe existir.</li>
-        <li>El préstamo no puede estar cancelado y debe estar vigente.</li>
-        <li>El saldo calculado desde <code>PVDSBL0</code> debe ser mayor que cero.</li>
-        <li>No se puede modificar cabecera en estado 2.</li>
-        <li>El cliente enviado debe existir y debe ser titular del crédito.</li>
-        <li>Tipo permitido solo <code>C</code> o <code>L</code>.</li>
-      </ul>
-
-      <h3>9.2 Validaciones de detalle (<code>valDetail</code>)</h3>
-      <ul>
-        <li>La cabecera debe existir y no estar cerrada.</li>
-        <li>El préstamo debe existir.</li>
-        <li>Se valida configuración de oficina y tipo de formulario.</li>
-        <li>Si es VV, se valida disponibilidad del cheque oficial.</li>
-        <li>Beneficiario obligatorio.</li>
-        <li>Clase válida.</li>
-        <li>Identificación del beneficiario obligatoria y con dígito verificador si aplica Chile.</li>
-        <li>Motivo obligatorio y existente en tabla de motivos.</li>
-        <li>Cuenta de débito/contable válida.</li>
-        <li>Aplicante obligatorio.</li>
-        <li>Monto mayor que cero.</li>
-        <li>Tipo de registro solo <code>V</code> o <code>T</code>.</li>
-        <li>Sucursal válida.</li>
-        <li>Cuenta de abono, si viene, debe existir, estar activa, ser CLP y corresponder al cliente.</li>
-      </ul>
-
-      <h3>9.3 Validaciones de aprobación de Vale Vista (<code>valEmision</code>)</h3>
-      <ul>
-        <li>Suma montos ya emitidos/aprobados.</li>
-        <li>Evita que el total supere el saldo de la cabecera.</li>
-        <li>Controla cantidad de VV y TEF acumulados.</li>
-      </ul>
-
-      <h3>9.4 Validaciones de aprobación TEF (<code>valTefApr</code>)</h3>
-      <ul>
-        <li>Suma montos ya aprobados/emitidos.</li>
-        <li>Evita que el total supere el saldo.</li>
-        <li>Para compra de cartera exige al menos un VV aprobado si se quiere aprobar una TEF.</li>
-        <li>Valida cuenta de abono obligatoria.</li>
-        <li>Hoy además bloquea la existencia de otra TEF aprobada para el mismo préstamo.</li>
-      </ul>
-
-      <h3>9.5 Validaciones de ejecución TEF (<code>valEjecTef</code>)</h3>
-      <ul>
-        <li>Hoy bloquea más de una TEF por préstamo.</li>
-        <li>Para compra de cartera: exige al menos un VV.</li>
-        <li>Para compra de cartera: la TEF no puede ser por el 100% del crédito.</li>
-        <li>Para flujo libre sin VV: la TEF debe ser por el 100%.</li>
-        <li>Cuenta de abono obligatoria, activa, del titular y en CLP.</li>
-      </ul>
-    </div>
-
-    <h2 id="restriccion">10. Dónde está la restricción de una sola TEF</h2>
-    <div class="card">
-      <p>La limitación actual no está en un único campo, sino en validaciones explícitas:</p>
-
-      <h3>10.1 En <code>valTefApr</code></h3>
-<pre>select OFMACCVD
-from ofmstvd
-where OFMACCVD = :E02NROFOL
-  and OFMREGTI = 'T'
-  and OFMSTSVD = 2
-group by OFMACCVD
-having count(*) >= 1
-fetch first 1 rows only</pre>
-      <p>Si encuentra una TEF aprobada para el préstamo, dispara error y evita una nueva.</p>
-
-      <h3>10.2 En <code>valEjecTef</code></h3>
-<pre>if conttef &gt; 1 and OFMREGTI = 'T'
-   ... error 2271
-endif</pre>
-      <p>Este segundo control refuerza la misma regla funcional.</p>
-
-      <p><strong>Conclusión:</strong> sí, el programa fue construido para operar con una sola TEF efectiva por préstamo.</p>
-    </div>
-
-    <h2 id="modificacion">11. Qué modificar para permitir múltiples TEF</h2>
-    <div class="card">
-      <h3>11.1 Cambios mínimos obligatorios</h3>
-      <ol>
-        <li><strong>Modificar o eliminar el SQL de <code>valTefApr</code></strong> que hoy prohíbe otra TEF aprobada.</li>
-        <li><strong>Modificar o eliminar la validación de <code>valEjecTef</code></strong> que controla <code>conttef &gt; 1</code>.</li>
-      </ol>
-
-      <h3>11.2 Cambios de negocio que deben revisarse</h3>
-      <ul>
-        <li>Regla de diferencia exacta en compra de cartera.</li>
-        <li>Criterio de cierre de cabecera cuando el total llega al saldo.</li>
-        <li>Frecuencia de journals por cada aprobación TEF.</li>
-        <li>Comportamiento del front si hoy asume una sola TEF.</li>
-      </ul>
-
-      <h3>11.3 Punto especialmente sensible</h3>
-      <p>En <code>valTefApr</code> existe una lógica que calcula diferencia remanente. Si negocio quiere múltiples TEF parciales, esa validación debe redefinirse para no bloquear aprobaciones intermedias válidas.</p>
-    </div>
-
-    <h2 id="impacto">12. Impacto esperado del cambio</h2>
-    <div class="card">
-      <table>
-        <thead>
-          <tr>
-            <th>Zona</th>
-            <th>Impacto</th>
-            <th>Comentario</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>valTefApr</td>
-            <td>Alto</td>
-            <td>Debe eliminar la restricción de unicidad y revisar cuadratura de montos.</td>
-          </tr>
-          <tr>
-            <td>valEjecTef</td>
-            <td>Alto</td>
-            <td>Debe adaptarse para permitir múltiples TEF sin romper reglas actuales.</td>
-          </tr>
-          <tr>
-            <td>updMontosCab</td>
-            <td>Medio</td>
-            <td>Debe confirmarse que los acumulados y cierre de cabecera sigan correctos.</td>
-          </tr>
-          <tr>
-            <td>approvreject</td>
-            <td>Medio</td>
-            <td>Cada aprobación de TEF seguirá ejecutando movimiento contable.</td>
-          </tr>
-          <tr>
-            <td>Front/UI</td>
-            <td>Medio/Alto</td>
-            <td>Puede existir una restricción visual o de experiencia que hoy impida más de una TEF.</td>
-          </tr>
-          <tr>
-            <td>Contabilidad / conciliación</td>
-            <td>Alto</td>
-            <td>Más TEF implica más asientos y más casos de conciliación.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h2 id="riesgos">13. Riesgos y vulnerabilidades</h2>
-    <div class="card">
-      <h3>13.1 Sin control transaccional fuerte</h3>
-      <p>El programa usa <code>SET OPTION COMMIT = *NONE</code>. Eso significa que no hay una transacción atómica envolviendo todo el flujo.</p>
-      <p><span class="badge danger">Riesgo alto</span> Si falla algo a mitad del proceso, podrían quedar actualizaciones parciales entre detalle, cabecera, histórico y journal.</p>
-
-      <h3>13.2 Riesgo de concurrencia</h3>
-      <p>No se observan bloqueos transaccionales explícitos para aprobación simultánea. Si dos usuarios aprueban TEF al mismo tiempo, podrían validar sobre el mismo estado base y generar inconsistencias de monto.</p>
-
-      <h3>13.3 Regla de una sola TEF implementada por validaciones puntuales</h3>
-      <p>La restricción actual no parece estar protegida por un diseño transaccional robusto o una restricción física, sino por código de validación. Al removerlo, crece el riesgo de aprobar múltiples TEF en forma simultánea.</p>
-
-      <h3>13.4 Cierre automático por igualdad exacta</h3>
-      <p>La cabecera se cierra cuando la suma acumulada es exactamente igual al saldo. Con múltiples TEF, es necesario verificar que esa lógica no cierre prematuramente o deje cabeceras abiertas por desfases lógicos.</p>
-
-      <h3>13.5 Lógica dispersa</h3>
-      <p>Las reglas TEF están repartidas entre varias subrutinas. Esto aumenta el riesgo de modificar un punto y dejar otro comportamiento antiguo vigente.</p>
-    </div>
-
-    <h2 id="pruebas">14. Casos de prueba sugeridos</h2>
-    <div class="card">
-      <table>
-        <thead>
-          <tr>
-            <th>Caso</th>
-            <th>Escenario</th>
-            <th>Resultado esperado</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>Compra de cartera, saldo 100, VV 70, TEF 30</td>
-            <td>Debe seguir funcionando igual que hoy.</td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>Compra de cartera, saldo 100, VV 70, TEF1 10, TEF2 20</td>
-            <td>Debe funcionar si se permite múltiples TEF parciales.</td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td>Compra de cartera, saldo 100, VV 70, TEF1 10, TEF2 25</td>
-            <td>Debe rechazar por exceder saldo.</td>
-          </tr>
-          <tr>
-            <td>4</td>
-            <td>Libre, sin VV, TEF 100</td>
-            <td>Debe funcionar si esa regla sigue vigente.</td>
-          </tr>
-          <tr>
-            <td>5</td>
-            <td>Libre, sin VV, TEF1 40, TEF2 60</td>
-            <td>Debe definirse si negocio lo permitirá o no.</td>
-          </tr>
-          <tr>
-            <td>6</td>
-            <td>Dos usuarios aprueban TEF simultáneamente</td>
-            <td>No debe excederse saldo ni duplicarse aprobación inconsistente.</td>
-          </tr>
-          <tr>
-            <td>7</td>
-            <td>Múltiples TEF con cuentas de abono distintas</td>
-            <td>Debe definirse si es permitido por negocio.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h2 id="conclusion">15. Conclusión</h2>
-    <div class="card">
-      <p><strong>Conclusión principal:</strong> el programa hoy está diseñado para restringir efectivamente a una sola TEF aprobada por préstamo.</p>
-      <p>Los puntos más importantes a intervenir son:</p>
-      <ol>
-        <li><code>valTefApr</code></li>
-        <li><code>valEjecTef</code></li>
-        <li>reglas de cuadratura para compra de cartera</li>
-        <li>validación de cierre de cabecera</li>
-      </ol>
-      <p>Si el objetivo es permitir múltiples TEF <strong>sin límite</strong>, se recomienda no implementar eso literalmente sin controles. Lo más seguro es permitir múltiples TEF manteniendo al menos:</p>
-      <ul>
-        <li>control de no exceder saldo total,</li>
-        <li>revalidación antes de aprobar/ejecutar,</li>
-        <li>validación de concurrencia,</li>
-        <li>consistencia contable por cada journal generado.</li>
-      </ul>
-      <p><span class="badge ok">Recomendación</span> Implementar múltiples TEF con control por saldo remanente y pruebas de concurrencia, en vez de un “sin límites” puro.</p>
+      <p><span class="badge ok">Recomendación</span> Cambiar la validación desde “TEF exacta final” a “TEF parciales controladas por remanente disponible”, manteniendo la cuadratura final del préstamo.</p>
     </div>
 
     <div class="card small">
-      Documento generado para repositorio de documentación técnica. Basado exclusivamente en el código fuente compartido de EOF0150 y su análisis funcional/técnico.
+      Documento ejecutivo generado para explicar el flujo actual del servicio EOF0150 y el impacto de modificar la lógica de TEF.
     </div>
   </div>
 </body>
