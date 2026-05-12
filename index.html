@@ -1,1 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Documentación Técnica - Índice</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --border: #d1d5db;
+      --shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    }
 
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #eff6ff 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 20px 60px;
+    }
+
+    .hero {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 2rem;
+      color: #111827;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .tag {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #1d4ed8;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    a.button {
+      display: inline-block;
+      text-decoration: none;
+      background: var(--accent);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+
+    a.button:hover {
+      background: #1d4ed8;
+    }
+
+    .footer {
+      margin-top: 32px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <h1>Índice de Documentación Técnica</h1>
+      <p class="subtitle">Selecciona el análisis o documento que deseas revisar.</p>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <span class="tag">RPG / Flujo / Validaciones</span>
+        <h2>EOF0150 - Análisis de Flujo</h2>
+        <p>Análisis completo del programa EOF0150, incluyendo flujo funcional, validaciones, restricción actual de TEF, riesgos, impacto y pruebas sugeridas.</p>
+        <a class="button" href="EOF0150-Analisis-Flujo.html">Ver documento</a>
+      </article>
+
+      <article class="card">
+        <span class="tag">Análisis técnico</span>
+        <h2>ITF9000 - Análisis</h2>
+        <p>Documento HTML disponible para revisar el análisis funcional o técnico asociado al programa ITF9000.</p>
+        <a class="button" href="ITF9000-Analisis.html">Ver documento</a>
+      </article>
+    </section>
+
+    <div class="footer">
+      Repositorio: bcisternas-powerage/paginas_confluence
+    </div>
+  </div>
+</body>
+</html>
