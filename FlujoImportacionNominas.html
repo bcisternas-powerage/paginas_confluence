@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flujo de Importación de Nóminas TEF Masivas</title>
+  <style>
+    :root {
+      --bg1: #0b1220;
+      --bg2: #111827;
+      --bg3: #1e3a8a;
+      --surface: rgba(255,255,255,0.94);
+      --surface-soft: rgba(255,255,255,0.88);
+      --text: #172033;
+      --muted: #5b6475;
+      --accent: #2563eb;
+      --accent-dark: #1d4ed8;
+      --accent-soft: #dbeafe;
+      --border: rgba(148, 163, 184, 0.28);
+      --danger: #b91c1c;
+      --warn: #b45309;
+      --ok: #047857;
+      --shadow: 0 14px 40px rgba(15, 23, 42, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      line-height: 1.6;
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.25), transparent 28%),
+        radial-gradient(circle at top right, rgba(14, 165, 233, 0.18), transparent 24%),
+        linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 48%, var(--bg3) 100%);
+      background-attachment: fixed;
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 20px 70px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(255,255,255,0.97), rgba(239,246,255,0.94));
+      border: 1px solid rgba(191, 219, 254, 0.8);
+      border-radius: 22px;
+      padding: 28px 30px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+      backdrop-filter: blur(8px);
+    }
+
+    h1, h2, h3, h4 {
+      color: #0f172a;
+      margin-top: 1.2em;
+      margin-bottom: 0.55em;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 2.25rem;
+      line-height: 1.2;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 1.45rem;
+    }
+
+    h3 {
+      font-size: 1.06rem;
+    }
+
+    .lead {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 1.02rem;
+      max-width: 900px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .meta-box {
+      background: rgba(255,255,255,0.72);
+      border: 1px solid rgba(191, 219, 254, 0.8);
+      border-radius: 14px;
+      padding: 12px 14px;
+    }
+
+    .meta-box strong {
+      display: block;
+      font-size: 0.82rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: #475569;
+      margin-bottom: 4px;
+    }
+
+    .meta-box span {
+      color: #111827;
+      font-weight: bold;
+    }
+
+    .badge-row {
+      margin-top: 16px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      margin-right: 6px;
+      margin-bottom: 8px;
+      border: 1px solid transparent;
+      background: #f3f4f6;
+    }
+
+    .danger { background: #fee2e2; color: var(--danger); border-color: #fecaca; }
+    .warn { background: #fef3c7; color: var(--warn); border-color: #fde68a; }
+    .ok { background: #d1fae5; color: var(--ok); border-color: #a7f3d0; }
+    .accent { background: var(--accent-soft); color: #1e3a8a; border-color: #bfdbfe; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px 24px;
+      margin: 18px 0;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .toc ul {
+      margin: 0;
+      padding-left: 20px;
+      columns: 2;
+      column-gap: 30px;
+    }
+
+    .toc a {
+      color: var(--accent-dark);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .toc a:hover {
+      text-decoration: underline;
+    }
+
+    .summary-grid,
+    .diagram-grid,
+    .impact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .mini-card {
+      background: var(--surface-soft);
+      border: 1px solid rgba(191, 219, 254, 0.75);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .mini-card h3,
+    .mini-card h4 {
+      margin-top: 0;
+    }
+
+    .highlight {
+      border-left: 5px solid var(--accent);
+      background: linear-gradient(90deg, rgba(219,234,254,0.7), rgba(255,255,255,0.55));
+    }
+
+    .decision {
+      border-left: 5px solid #7c3aed;
+      background: linear-gradient(90deg, rgba(237,233,254,0.75), rgba(255,255,255,0.55));
+    }
+
+    .risk {
+      border-left: 5px solid #dc2626;
+      background: linear-gradient(90deg, rgba(254,226,226,0.75), rgba(255,255,255,0.55));
+    }
+
+    .success {
+      border-left: 5px solid #059669;
+      background: linear-gradient(90deg, rgba(209,250,229,0.75), rgba(255,255,255,0.55));
+    }
+
+    .executive-diagram {
+      background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+      border: 1px solid #c7d2fe;
+      border-radius: 18px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+
+    .flow-title {
+      margin: 0 0 14px;
+      font-size: 1rem;
+      color: #1e3a8a;
+      font-weight: bold;
+    }
+
+    .flow-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .flow-box {
+      min-width: 170px;
+      flex: 1 1 180px;
+      background: white;
+      border: 1px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.08);
+    }
+
+    .flow-box strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #0f172a;
+    }
+
+    .arrow {
+      font-size: 1.8rem;
+      color: var(--accent-dark);
+      font-weight: bold;
+      align-self: center;
+      padding: 0 2px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background: rgba(255,255,255,0.92);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    th, td {
+      border: 1px solid #dbe3ef;
+      padding: 11px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eaf2ff;
+      color: #0f172a;
+      font-weight: bold;
+    }
+
+    ul, ol {
+      padding-left: 22px;
+    }
+
+    code {
+      background: #eef2ff;
+      color: #312e81;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.95em;
+    }
+
+    .footer-note {
+      color: rgba(255,255,255,0.82);
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.92rem;
+    }
+
+    .back-button {
+      display: inline-block;
+      text-decoration: none;
+      color: #2563eb;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .back-button:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 900px) {
+      .toc ul { columns: 1; }
+      .arrow { display: none; }
+      .flow-row { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back-button">← Volver al índice</a>
+
+    <section class="hero">
+      <h1>Flujo de Importación de Nóminas TEF Masivas</h1>
+      <p class="lead">Análisis completo del ciclo de vida de nóminas tipo 0018 en el sistema: desde la importación hasta su procesamiento y auditoría. Incluye validaciones, máquina de estados, manejo de errores y consideraciones técnicas.</p>
+
+      <div class="meta-grid">
+        <div class="meta-box">
+          <strong>Programas principales</strong>
+          <span>ITEFT050, ITEFT060, TEFT0070, PA_HISNOMI</span>
+        </div>
+        <div class="meta-box">
+          <strong>Tipo de nómina</strong>
+          <span>0018 (Transferencias electrónicas masivas)</span>
+        </div>
+        <div class="meta-box">
+          <strong>Tipo de análisis</strong>
+          <span>Flujo / Validaciones / Arquitectura</span>
+        </div>
+        <div class="meta-box">
+          <strong>Fecha documento</strong>
+          <span>2026-05-15</span>
+        </div>
+      </div>
+
+      <div class="badge-row">
+        <span class="badge accent">Importación</span>
+        <span class="badge accent">Cambio de estado</span>
+        <span class="badge accent">Procesamiento</span>
+        <span class="badge ok">Auditoría</span>
+        <span class="badge warn">Validaciones críticas</span>
+        <span class="badge danger">Manejo de errores</span>
+      </div>
+    </section>
+
+    <section class="card toc">
+      <h2>Índice de contenidos</h2>
+      <ul>
+        <li><a href="#resumen">Resumen ejecutivo</a></li>
+        <li><a href="#arquitectura">Arquitectura del sistema</a></li>
+        <li><a href="#iteft050">ITEFT050: Importación</a></li>
+        <li><a href="#iteft060">ITEFT060: Cambio de estado</a></li>
+        <li><a href="#teft0070">TEFT0070: Procesamiento</a></li>
+        <li><a href="#pahisnomi">PA_HISNOMI: Auditoría</a></li>
+        <li><a href="#maquina-estados">Máquina de estados</a></li>
+        <li><a href="#validaciones">Validaciones críticas</a></li>
+        <li><a href="#flujo-datos">Flujo de datos</a></li>
+        <li><a href="#errores">Manejo de errores</a></li>
+        <li><a href="#consideraciones">Consideraciones técnicas</a></li>
+      </ul>
+    </section>
+
+    <section id="resumen" class="card">
+      <h2>1. Resumen ejecutivo</h2>
+      <div class="summary-grid">
+        <div class="mini-card highlight">
+          <h3>¿Qué es?</h3>
+          <p>Sistema integrado para importar, validar, procesar y auditar nóminas de transferencias electrónicas masivas (TEF). Es un flujo de batch que funciona en 4 fases coordinadas.</p>
+        </div>
+        <div class="mini-card decision">
+          <h3>Propósito</h3>
+          <p>Permitir que bancos y empresas importan masivamente instrucciones de pago (nóminas) para distribuir dinero a múltiples beneficiarios de forma automática y controlada.</p>
+        </div>
+        <div class="mini-card highlight">
+          <h3>Alcance</h3>
+          <p>ITEFT050 recibe archivo → ITEFT060 valida autorización → TEFT0070 ejecuta → PA_HISNOMI audita cambios de estado.</p>
+        </div>
+        <div class="mini-card success">
+          <h3>Resultado</h3>
+          <p>Transferencias automáticas, trazables, con control de errores por registro y estado transaccional consistente en toda la vida útil de la nómina.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="arquitectura" class="card">
+      <h2>2. Arquitectura del sistema</h2>
+      
+      <div class="executive-diagram">
+        <p class="flow-title">2.1 Componentes principales</p>
+        <div class="flow-row">
+          <div class="flow-box"><strong>Entrada</strong>Archivo de nómina en formato CSNOMINA (cabecera + detalles)</div>
+          <div class="arrow">→</div>
+          <div class="flow-box"><strong>ITEFT050</strong>Valida estructura y crear registros iniciales</div>
+          <div class="arrow">→</div>
+          <div class="flow-box"><strong>ITEFT060</strong>Cambia estado con autorización</div>
+          <div class="arrow">→</div>
+          <div class="flow-box"><strong>TEFT0070</strong>Procesa y ejecuta</div>
+          <div class="arrow">→</div>
+          <div class="flow-box"><strong>PA_HISNOMI</strong>Audita y consulta</div>
+        </div>
+      </div>
+
+      <h3>Archivos de datos principales</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Archivo</th>
+            <th>Propósito</th>
+            <th>Contenido clave</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>CINTNOH</code></td>
+            <td>Cabecera de nómina importada</td>
+            <td>Tipo nómina, RUT empresa, montos, estado, fechas</td>
+          </tr>
+          <tr>
+            <td><code>CSMHNM</code></td>
+            <td>Detalles de pago (transferencias)</td>
+            <td>RUT beneficiario, cuenta, monto, tipo, estado</td>
+          </tr>
+          <tr>
+            <td><code>NOHHST</code></td>
+            <td>Histórico de cambios de estado</td>
+            <td>Evento, usuario, timestamp, descripción</td>
+          </tr>
+          <tr>
+            <td><code>CSMCTR</code></td>
+            <td>Control de proceso</td>
+            <td>Contadores, totales, estado ejecución</td>
+          </tr>
+          <tr>
+            <td><code>CSMNOD</code></td>
+            <td>Detalles finales procesados</td>
+            <td>Información replicada post-procesamiento</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="iteft050" class="card">
+      <h2>3. ITEFT050: Importación de Nóminas</h2>
+      <p><strong>Objetivo:</strong> Recibir un archivo de nómina, validar estructura y datos maestros, crear registros en tablas de control y preparar para autorización.</p>
+
+      <h3>3.1 Flujo general</h3>
+      <div class="executive-diagram">
+        <p class="flow-title">Secuencia de ITEFT050</p>
+        <div class="flow-row">
+          <div class="flow-box"><strong>1. Init</strong>Carga fecha proceso y parámetros</div>
+          <div class="arrow">→</div>
+          <div class="flow-box"><strong>2. Busca</strong>Valida y abre archivo CSNOMINA</div>
+          <div class="arrow">→</div>
+          <div class="flow-box"><strong>3. Lee cabecera</strong>Valida datos y maestros</div>
+          <div class="arrow">→</div>
+          <div class="flow-box"><strong>4. Conteo</strong>Verifica cantidad de registros</div>
+          <div class="arrow">→</div>
+          <div class="flow-box"><strong>5. Graba</strong>Crea registros en tablas</div>
+          <div class="arrow">→</div>
+          <div class="flow-box"><strong>6. Retorna</strong>Error o éxito</div>
+        </div>
+      </div>
+
+      <h3>3.2 Validaciones críticas de ITEFT050</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Validación</th>
+            <th>Código error</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>01</td>
+            <td>Nómina no procesada</td>
+            <td>7448</td>
+            <td>Verifica que la nómina no exista en CINTNOH (evita duplicados)</td>
+            <td>Rechaza y asigna estado 09</td>
+          </tr>
+          <tr>
+            <td>02</td>
+            <td>Archivo existe</td>
+            <td>2206</td>
+            <td>Intenta abrir archivo CSNOMINA. Si falla, error.</td>
+            <td>Rechaza, asigna estado 01, flag 'R'</td>
+          </tr>
+          <tr>
+            <td>03</td>
+            <td>Tipo nómina = 0018</td>
+            <td>2213</td>
+            <td>La cabecera debe indicar tipo 0018 (TEF)</td>
+            <td>Rechaza, asigna estado 02</td>
+          </tr>
+          <tr>
+            <td>04</td>
+            <td>Canal y usuario</td>
+            <td>6120</td>
+            <td>Valida que usuario y canal sean consistentes en tabla CNTIN</td>
+            <td>Rechaza, asigna estado 02</td>
+          </tr>
+          <tr>
+            <td>05</td>
+            <td>Cuenta débito activa</td>
+            <td>2143 / 0825</td>
+            <td>Cuenta debe existir en ACMSTL0 y no estar suspendida</td>
+            <td>Rechaza, asigna estado 04</td>
+          </tr>
+          <tr>
+            <td>06</td>
+            <td>Cliente existe</td>
+            <td>0846</td>
+            <td>RUT cliente debe existir en CUMSTL3</td>
+            <td>Rechaza, asigna estado 05</td>
+          </tr>
+          <tr>
+            <td>07</td>
+            <td>Cantidad coincide</td>
+            <td>7727</td>
+            <td>Número de detalles en archivo = E01NOHNRO (cabecera)</td>
+            <td>Rechaza, asigna estado 02, código 004</td>
+          </tr>
+          <tr>
+            <td>08</td>
+            <td>Monto total</td>
+            <td>8204 / 6039</td>
+            <td>Suma de detalles = NOHMTO (cabecera). Si > 2000 registros: error 8204. Si monto no coincide: 6039</td>
+            <td>Rechaza, flag 'R', asigna estado 02/03</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>3.3 Archivos generados</h3>
+      <ul>
+        <li><strong>CINTNOH:</strong> Registro de cabecera con estado 04 (importada ok) o 03 (importada con errores)</li>
+        <li><strong>CSMHNM:</strong> Registros de detalle (transferencias)</li>
+        <li><strong>CSMCTR:</strong> Registro de control con contadores</li>
+        <li><strong>NOHHST:</strong> Registro histórico del evento de importación</li>
+      </ul>
+    </section>
+
+    <section id="iteft060" class="card">
+      <h2>4. ITEFT060: Cambio de Estado y Validación</h2>
+      <p><strong>Objetivo:</strong> Autorizar cambios de estado en la nómina según operación solicitada (0006, 0008, 0012, 0057, 0059).</p>
+
+      <h3>4.1 Operaciones soportadas</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Op.</th>
+            <th>Nombre</th>
+            <th>Transición</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>0006</code></td>
+            <td>Envío a autorizar</td>
+            <td>04 → 06</td>
+            <td>Marca nómina como pendiente de autorización del aprobador</td>
+          </tr>
+          <tr>
+            <td><code>0008</code></td>
+            <td>Ejecutar proceso</td>
+            <td>06 → 08</td>
+            <td>Llama ECM0003 para ejecución contable y envía a proceso batch</td>
+          </tr>
+          <tr>
+            <td><code>0012</code></td>
+            <td>Procesada con errores</td>
+            <td>08 → 12</td>
+            <td>Marca nómina como procesada pero con rechazos parciales</td>
+          </tr>
+          <tr>
+            <td><code>0057</code></td>
+            <td>Rechazada</td>
+            <td>08 → 57</td>
+            <td>Todos los registros fueron rechazados (sin fondos)</td>
+          </tr>
+          <tr>
+            <td><code>0059</code></td>
+            <td>Detenida</td>
+            <td>08 → 59</td>
+            <td>Nómina detenida manualmente. Marca detalles como 'R' (rechazados)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>4.2 Validaciones previas al cambio</h3>
+      <ul>
+        <li><strong>Nómina existe:</strong> Búsqueda en CINTNOH por tipo e ID</li>
+        <li><strong>Estado válido:</strong> Solo permite cambios desde estados 04, 06, 08</li>
+        <li><strong>RUT empresa:</strong> Debe coincidir con el ingresado en la solicitud</li>
+        <li><strong>Autorización:</strong> Usuario y programa deben estar en CNTIN autorizados</li>
+      </ul>
+
+      <h3>4.3 Integración con ECM0003 (op. 0008)</h3>
+      <p>Cuando se ejecuta op. 0008, ITEFT060 prepara estructura CINT05001 y llama a <code>SBMJOB ECM0003</code> que:</p>
+      <ol>
+        <li>Realiza validaciones finales de fondos</li>
+        <li>Genera journals contables</li>
+        <li>Ejecuta las transferencias</li>
+        <li>Actualiza estado a 08 en caso de éxito</li>
+        <li>Registra en histórico con resultado</li>
+      </ol>
+
+      <h3>4.4 Histórico de cambios</h3>
+      <p>Cada operación registra en NOHHST:</p>
+      <ul>
+        <li>Tipo de nómina, número, RUT empresa</li>
+        <li>Tipo de evento y descripción</li>
+        <li>Usuario autoriza y usuario que ejecuta</li>
+        <li>Timestamp del evento</li>
+      </ul>
+    </section>
+
+    <section id="teft0070" class="card">
+      <h2>5. TEFT0070: Procesamiento y Caducidad</h2>
+      <p><strong>Objetivo:</strong> Procesar nóminas en estados finales, aplicar reglas de caducidad y cambiar estados según resultado.</p>
+
+      <h3>5.1 Flujo general</h3>
+      <div class="executive-diagram">
+        <p class="flow-title">Secuencia de TEFT0070</p>
+        <div class="flow-row">
+          <div class="flow-box"><strong>1. Busca activas</strong>Nóminas en estado 08 o 12</div>
+          <div class="arrow">→</div>
+          <div class="flow-box"><strong>2. Valida caducidad</strong>Compara fecha proceso con fecha límite</div>
+          <div class="arrow">→</div>
+          <div class="flow-box"><strong>3. Clasifica</strong>Exitosas, parciales, rechazadas</div>
+          <div class="arrow">→</div>
+          <div class="flow-box"><strong>4. Actualiza</strong>Estado final: 12, 57, 59</div>
+        </div>
+      </div>
+
+      <h3>5.2 Estados finales</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Estado</th>
+            <th>Nombre</th>
+            <th>Significado</th>
+            <th>Próximo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>12</code></td>
+            <td>Procesada con errores</td>
+            <td>Algunos registros se ejecutaron, otros rechazados</td>
+            <td>Fin (puede reintentarse)</td>
+          </tr>
+          <tr>
+            <td><code>57</code></td>
+            <td>Rechazada (sin fondos)</td>
+            <td>Ningún registro se ejecutó</td>
+            <td>Fin</td>
+          </tr>
+          <tr>
+            <td><code>59</code></td>
+            <td>Detenida</td>
+            <td>Parada manual o por caducidad</td>
+            <td>Fin</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>5.3 Consideraciones</h3>
+      <ul>
+        <li>TEFT0070 es típicamente un programa batch nocturno</li>
+        <li>Verifica fechas de vigencia de la nómina</li>
+        <li>Actualiza histórico con evento de caducidad o cierre</li>
+        <li>Genera reportes de resumen por estado</li>
+      </ul>
+    </section>
+
+    <section id="pahisnomi" class="card">
+      <h2>6. PA_HISNOMI: Auditoría y Consulta</h2>
+      <p><strong>Objetivo:</strong> Procedimiento almacenado para consultar el histórico completo de cambios de estado de una nómina.</p>
+
+      <h3>6.1 Parámetros de entrada</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Parámetro</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+            <th>Ejemplo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>PARRUT</code></td>
+            <td>CHAR(15)</td>
+            <td>RUT empresa (filtro opcional)</td>
+            <td>77888999-5</td>
+          </tr>
+          <tr>
+            <td><code>PARNOM</code></td>
+            <td>CHAR(12)</td>
+            <td>Número de nómina (filtro opcional)</td>
+            <td>000000001234</td>
+          </tr>
+          <tr>
+            <td><code>PARORD</code></td>
+            <td>CHAR(1)</td>
+            <td>Orden: 'A' ascendente, 'D' descendente</td>
+            <td>D</td>
+          </tr>
+          <tr>
+            <td><code>PARAMB</code></td>
+            <td>CHAR(3)</td>
+            <td>Entorno / ambiente (para logging)</td>
+            <td>PRD</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>6.2 Salida (columnas del cursor)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Campo</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>TIPO_NOMINA</code></td>
+            <td>CHAR(4)</td>
+            <td>Tipo (0018 para TEF)</td>
+          </tr>
+          <tr>
+            <td><code>NRO_NOMINA</code></td>
+            <td>CHAR(12)</td>
+            <td>Número identificador</td>
+          </tr>
+          <tr>
+            <td><code>RUT_EMPRESA</code></td>
+            <td>CHAR(15)</td>
+            <td>RUT del cliente</td>
+          </tr>
+          <tr>
+            <td><code>ANO_EVENTO</code>, <code>MES_EVENTO</code>, <code>DIA_EVENTO</code></td>
+            <td>NUM(4), NUM(2), NUM(2)</td>
+            <td>Fecha del evento</td>
+          </tr>
+          <tr>
+            <td><code>HORA_EVENTO</code></td>
+            <td>CHAR(6)</td>
+            <td>Hora del evento (HHMMSS)</td>
+          </tr>
+          <tr>
+            <td><code>TIPO_EVENTO</code></td>
+            <td>CHAR(4)</td>
+            <td>Operación (0006, 0008, etc.)</td>
+          </tr>
+          <tr>
+            <td><code>DESCR_EVENTO</code></td>
+            <td>CHAR(80)</td>
+            <td>Descripción del evento</td>
+          </tr>
+          <tr>
+            <td><code>USER_EVENTO</code></td>
+            <td>CHAR(30)</td>
+            <td>Usuario que ejecutó el evento</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>6.3 Ejemplo de consulta</h3>
+      <pre><code>CALL PA_HISNOMI('77888999-5', '000000001234', 'D', 'PRD')</code></pre>
+      <p>Devuelve todos los eventos de la nómina 1234 de RUT 77888999-5, ordenados descendente por fecha/hora.</p>
+    </section>
+
+    <section id="maquina-estados" class="card">
+      <h2>7. Máquina de Estados</h2>
+
+      <h3>7.1 Estados principales</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Estado</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Transiciones válidas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>01</code></td>
+            <td>En creación</td>
+            <td>Nómina recibida pero validación falló</td>
+            <td>→ 02 (reintentar), → 09 (cancelar)</td>
+          </tr>
+          <tr>
+            <td><code>02</code></td>
+            <td>Errores estructura</td>
+            <td>Problemas en cantidad o monto</td>
+            <td>→ 01 (reintentar)</td>
+          </tr>
+          <tr>
+            <td><code>03</code></td>
+            <td>Importada con errores</td>
+            <td>Importada pero con rechazos en detalles</td>
+            <td>→ 04 (reintentar)</td>
+          </tr>
+          <tr>
+            <td><code>04</code></td>
+            <td>Importada OK</td>
+            <td>Validaciones pasadas, lista para autorizar</td>
+            <td>→ 06 (autorizar)</td>
+          </tr>
+          <tr>
+            <td><code>06</code></td>
+            <td>Pendiente autorización</td>
+            <td>Esperando aprobación ejecutiva</td>
+            <td>→ 08 (ejecutar), → 59 (cancelar)</td>
+          </tr>
+          <tr>
+            <td><code>08</code></td>
+            <td>En proceso</td>
+            <td>Ejecutándose en ECM0003</td>
+            <td>→ 12 (parcial), → 57 (rechazada), → 59 (detenida)</td>
+          </tr>
+          <tr>
+            <td><code>09</code></td>
+            <td>Cancelada</td>
+            <td>Rechazada definitivamente</td>
+            <td>Final</td>
+          </tr>
+          <tr>
+            <td><code>12</code></td>
+            <td>Procesada con errores</td>
+            <td>Algunos registros ok, otros rechazados</td>
+            <td>Final (puede reintentarse)</td>
+          </tr>
+          <tr>
+            <td><code>57</code></td>
+            <td>Rechazada</td>
+            <td>Sin fondos o validación crítica</td>
+            <td>Final</td>
+          </tr>
+          <tr>
+            <td><code>59</code></td>
+            <td>Detenida</td>
+            <td>Parada manual o por caducidad</td>
+            <td>Final</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>7.2 Diagrama de transiciones</h3>
+      <div class="executive-diagram">
+        <p class="flow-title">Flujo de estados de nómina</p>
+        <pre style="color: #0f172a; background: #f8fbff; padding: 12px; border-radius: 8px; overflow-x: auto;">
+┌─────────────────────────────────────────────────────────────┐
+│                                                             │
+│  INICIO                                                     │
+│    ↓                                                        │
+│  [01] En creación ─────→ [02] Errores estructura           │
+│    ↓                              ↓                         │
+│    └──────────────────────────────┘                         │
+│         (reintentar)              │                         │
+│                                   ↓                         │
+│              ┌────────────→ [03] Con errores importada      │
+│              │                    ↓                         │
+│              │                [04] Importada OK             │
+│              │                    ↓                         │
+│              └────────────── [06] Pendiente autorización    │
+│         (si hay errs. detail)     ↓                         │
+│                           [08] En proceso                   │
+│              ┌───────────────┬────────┬──────────┐           │
+│              ↓               ↓        ↓          ↓           │
+│            [12]            [57]    [59]       [12]          │
+│        Con errores      Rechazada Detenida   (Fin)          │
+│        (puede reintentar) (Fin)    (Fin)                    │
+│                                                             │
+│  [09] Cancelada ←─ (si error crítico en ITEFT050)           │
+│       (Fin)                                                 │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+        </pre>
+      </div>
+    </section>
+
+    <section id="validaciones" class="card">
+      <h2>8. Validaciones Críticas</h2>
+
+      <h3>8.1 Niveles de validación</h3>
+      <div class="summary-grid">
+        <div class="mini-card">
+          <h3>Entrada (ITEFT050)</h3>
+          <ul>
+            <li>Archivo existe y accesible</li>
+            <li>Cabecera contiene datos obligatorios</li>
+            <li>Tipo nómina = 0018</li>
+            <li>Usuario/canal autorizados</li>
+          </ul>
+        </div>
+        <div class="mini-card">
+          <h3>Estructura (ITEFT050)</h3>
+          <ul>
+            <li>Número de detalles coincide</li>
+            <li>Monto total coincide</li>
+            <li>No más de 2000 registros</li>
+            <li>Campos obligatorios presentes</li>
+          </ul>
+        </div>
+        <div class="mini-card">
+          <h3>Datos maestros (ITEFT050)</h3>
+          <ul>
+            <li>Cuenta débito existe y activa</li>
+            <li>Cliente (RUT) existe</li>
+            <li>Beneficiarios válidos en detalles</li>
+            <li>Bancos destino conocidos</li>
+          </ul>
+        </div>
+        <div class="mini-card">
+          <h3>Autorización (ITEFT060)</h3>
+          <ul>
+            <li>Usuario autorizado</li>
+            <li>Programa autorizado</li>
+            <li>RUT empresa coincide</li>
+            <li>Nómina en estado válido</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>8.2 Tablas de validación</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Tabla</th>
+            <th>Propósito</th>
+            <th>Validaciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>CNTIN</code></td>
+            <td>Control de autorización</td>
+            <td>Usuario + programa autorizados para operación</td>
+          </tr>
+          <tr>
+            <td><code>CNOFC</code></td>
+            <td>Catálogo de bancos</td>
+            <td>Banco destino existe y activo</td>
+          </tr>
+          <tr>
+            <td><code>ACMSTL0</code></td>
+            <td>Cuentas contables</td>
+            <td>Cuenta débito activa, saldo disponible</td>
+          </tr>
+          <tr>
+            <td><code>CUMSTL3</code></td>
+            <td>Clientes</td>
+            <td>Cliente/RUT existe y activo</td>
+          </tr>
+          <tr>
+            <td><code>HOLYDL1</code></td>
+            <td>Calendario de feriados</td>
+            <td>Fecha de ejecución no es feriado</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="flujo-datos" class="card">
+      <h2>9. Flujo de Datos</h2>
+
+      <h3>9.1 Estructura CINTNOH (Cabecera)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Campo</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>NOHTIN</code></td>
+            <td>CHAR(4)</td>
+            <td>Tipo nómina (0018)</td>
+          </tr>
+          <tr>
+            <td><code>NOHNFI</code></td>
+            <td>CHAR(12)</td>
+            <td>Número folio (identificador único)</td>
+          </tr>
+          <tr>
+            <td><code>NOHRCL</code></td>
+            <td>CHAR(15)</td>
+            <td>RUT cliente/empresa</td>
+          </tr>
+          <tr>
+            <td><code>NOHCUN</code></td>
+            <td>NUM(4)</td>
+            <td>Consecutivo único del cliente</td>
+          </tr>
+          <tr>
+            <td><code>NOHMTO</code></td>
+            <td>NUM(15,2)</td>
+            <td>Monto total de la nómina</td>
+          </tr>
+          <tr>
+            <td><code>NOHNRO</code></td>
+            <td>NUM(4)</td>
+            <td>Número de registros de detalle</td>
+          </tr>
+          <tr>
+            <td><code>NOHSTS</code></td>
+            <td>CHAR(2)</td>
+            <td>Estado actual (01-59)</td>
+          </tr>
+          <tr>
+            <td><code>NOHFCY, NOHFCM, NOHFCD</code></td>
+            <td>NUM(4,2)</td>
+            <td>Fecha de creación (año, mes, día)</td>
+          </tr>
+          <tr>
+            <td><code>NOHFVY, NOHFVM, NOHFVD</code></td>
+            <td>NUM(4,2)</td>
+            <td>Fecha de validación/ejecución</td>
+          </tr>
+          <tr>
+            <td><code>NOHRAP</code></td>
+            <td>CHAR(15)</td>
+            <td>RUT autoriza/aprueba</td>
+          </tr>
+          <tr>
+            <td><code>NOHGLR</code></td>
+            <td>CHAR(80)</td>
+            <td>Glosa/comentario estado</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>9.2 Estructura CSMHNM (Detalle)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Campo</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>HNMNFI</code></td>
+            <td>CHAR(12)</td>
+            <td>Folio nómina (FK → CINTNOH)</td>
+          </tr>
+          <tr>
+            <td><code>HNMTNO</code></td>
+            <td>CHAR(4)</td>
+            <td>Tipo nómina (0018)</td>
+          </tr>
+          <tr>
+            <td><code>HNMSQN</code></td>
+            <td>NUM(5)</td>
+            <td>Número secuencial del detalle</td>
+          </tr>
+          <tr>
+            <td><code>HNMRAB</code></td>
+            <td>CHAR(15)</td>
+            <td>RUT beneficiario</td>
+          </tr>
+          <tr>
+            <td><code>HNMACC</code></td>
+            <td>CHAR(20)</td>
+            <td>Cuenta beneficiario</td>
+          </tr>
+          <tr>
+            <td><code>HNMBCO</code></td>
+            <td>CHAR(3)</td>
+            <td>Banco destino (código)</td>
+          </tr>
+          <tr>
+            <td><code>HNMMTO</code></td>
+            <td>NUM(15,2)</td>
+            <td>Monto transferencia</td>
+          </tr>
+          <tr>
+            <td><code>HNMSTS</code></td>
+            <td>CHAR(1)</td>
+            <td>Estado: 'P' pendiente, 'E' ejecutada, 'R' rechazada</td>
+          </tr>
+          <tr>
+            <td><code>HNMMRE</code></td>
+            <td>CHAR(2)</td>
+            <td>Código motivo rechazo (CA, NE, CT, 05, 11, etc.)</td>
+          </tr>
+          <tr>
+            <td><code>HNMNAM</code></td>
+            <td>CHAR(50)</td>
+            <td>Nombre beneficiario</td>
+          </tr>
+          <tr>
+            <td><code>HNMGCO</code></td>
+            <td>CHAR(50)</td>
+            <td>Glosa/concepto de pago</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>9.3 Flujo de creación de registros</h3>
+      <div class="executive-diagram">
+        <p class="flow-title">De CSNOMINA a tablas de control</p>
+        <div class="flow-row">
+          <div class="flow-box"><strong>CSNOMINA</strong>Archivo importado (temporal)</div>
+          <div class="arrow">→</div>
+          <div class="flow-box"><strong>CINTNOH</strong>Cabecera permanente</div>
+          <div class="arrow">→</div>
+          <div class="flow-box"><strong>CSMHNM</strong>Detalles permanentes</div>
+          <div class="arrow">→</div>
+          <div class="flow-box"><strong>NOHHST</strong>Histórico de eventos</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="errores" class="card">
+      <h2>10. Manejo de Errores</h2>
+
+      <h3>10.1 Códigos de error principales</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Descripción</th>
+            <th>Nivel</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>7448</td>
+            <td>Nómina ya fue procesada (duplicado)</td>
+            <td>Crítico</td>
+            <td>Rechaza, estado 09</td>
+          </tr>
+          <tr>
+            <td>2206</td>
+            <td>Archivo no encontrado</td>
+            <td>Crítico</td>
+            <td>Rechaza, estado 01, flag 'R'</td>
+          </tr>
+          <tr>
+            <td>2213</td>
+            <td>Tipo nómina no es 0018</td>
+            <td>Crítico</td>
+            <td>Rechaza, estado 02</td>
+          </tr>
+          <tr>
+            <td>6120</td>
+            <td>Usuario/canal no autorizado</td>
+            <td>Crítico</td>
+            <td>Rechaza, estado 02</td>
+          </tr>
+          <tr>
+            <td>2143</td>
+            <td>Cuenta suspendida</td>
+            <td>Crítico</td>
+            <td>Rechaza, estado 04</td>
+          </tr>
+          <tr>
+            <td>0846</td>
+            <td>Cliente no existe</td>
+            <td>Crítico</td>
+            <td>Rechaza, estado 05</td>
+          </tr>
+          <tr>
+            <td>7727</td>
+            <td>Cantidad de registros no coincide</td>
+            <td>Crítico</td>
+            <td>Rechaza, estado 02, código 004</td>
+          </tr>
+          <tr>
+            <td>8204</td>
+            <td>Más de 2000 registros</td>
+            <td>Crítico</td>
+            <td>Rechaza, estado 02, flag 'R'</td>
+          </tr>
+          <tr>
+            <td>6039</td>
+            <td>Monto total no coincide</td>
+            <td>Crítico</td>
+            <td>Rechaza, estado 03, flag 'R'</td>
+          </tr>
+          <tr>
+            <td>0969</td>
+            <td>Estado nómina no válido para operación</td>
+            <td>Crítico</td>
+            <td>Rechaza cambio de estado</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>10.2 Propagación de errores</h3>
+      <p>Los errores se acumulan en estructura <code>$ERR$</code> con array de máximo 10:</p>
+      <ul>
+        <li><code>D$CANE:</code> Contador de errores acumulados</li>
+        <li><code>D$CODE(n):</code> Código de error</li>
+        <li><code>D$MSGE(n):</code> Mensaje descriptivo</li>
+        <li><code>D$CAME(n):</code> Campo involucrado</li>
+        <li><code>D$FILA(n):</code> Fila del registro en error</li>
+      </ul>
+
+      <h3>10.3 Recuperación</h3>
+      <ul>
+        <li><strong>Errores de entrada:</strong> Debe retransmitirse el archivo</li>
+        <li><strong>Errores de validación:</strong> Corregir datos maestros (clientes, cuentas, etc.)</li>
+        <li><strong>Errores de autorización:</strong> Revisar permisos del usuario en CNTIN</li>
+        <li><strong>Errores de detalle:</strong> Nómina se marca como estado 03 (parcial) y se puede reintentar</li>
+      </ul>
+    </section>
+
+    <section id="consideraciones" class="card">
+      <h2>11. Consideraciones Técnicas</h2>
+
+      <h3>11.1 Arquitectura y diseño</h3>
+      <div class="summary-grid">
+        <div class="mini-card highlight">
+          <h3>Separación de responsabilidades</h3>
+          <p>Cada programa tiene rol específico: ITEFT050 importa, ITEFT060 autoriza, TEFT0070 procesa, PA_HISNOMI audita.</p>
+        </div>
+        <div class="mini-card decision">
+          <h3>Máquina de estados</h3>
+          <p>Estados explícitos (01-59) permiten seguimiento completo y auditoría. Transiciones controladas.</p>
+        </div>
+        <div class="mini-card">
+          <h3>Histórico completo</h3>
+          <p>Cada cambio de estado registra en NOHHST: quién, cuándo, qué, por qué. Trazabilidad total.</p>
+        </div>
+        <div class="mini-card">
+          <h3>Validaciones por nivel</h3>
+          <p>Entrada → Estructura → Maestros → Autorización → Transaccional. Cada nivel agrega valor.</p>
+        </div>
+      </div>
+
+      <h3>11.2 Performance</h3>
+      <ul>
+        <li><strong>Limitación de 2000 registros por nómina:</strong> Evita saturación de tablas y colas</li>
+        <li><strong>Batch nocturno:</strong> TEFT0070 típicamente corre en horario off-peak</li>
+        <li><strong>Índices:</strong> CINTNOH y CSMHNM tienen índices en (NOHTIN, NOHNFI) para búsquedas rápidas</li>
+        <li><strong>Archivos temporales:</strong> CSNOMINA se limpia después de procesamiento</li>
+      </ul>
+
+      <h3>11.3 Seguridad y control</h3>
+      <ul>
+        <li><strong>Autorización dual:</strong> Importación y autorización separadas por usuarios</li>
+        <li><strong>Auditoría completa:</strong> Todo cambio de estado queda registrado en NOHHST</li>
+        <li><strong>Integridad de datos:</strong> Validaciones en múltiples niveles evitan datos inconsistentes</li>
+        <li><strong>Rechazo de duplicados:</strong> Verificación de nóminas ya procesadas evita doble pago</li>
+      </ul>
+
+      <h3>11.4 Integraciones externas</h3>
+      <ul>
+        <li><strong>ECM0003:</strong> Motor de ejecución contable. ITEFT060 (op. 0008) lanza SBMJOB a ECM0003</li>
+        <li><strong>Tablas maestras:</strong> CUMSTL3 (clientes), ACMSTL0 (cuentas), CNOFC (bancos), CNTIN (autorización)</li>
+        <li><strong>Histórico:</strong> NOHHST es sólo append, nunca se modifica</li>
+      </ul>
+
+      <h3>11.5 Limitaciones conocidas</h3>
+      <div class="summary-grid">
+        <div class="mini-card risk">
+          <h3>Commit = *NONE</h3>
+          <p>No hay transacción atómica. Si falla intermedio, pueden quedar datos inconsistentes.</p>
+        </div>
+        <div class="mini-card risk">
+          <h3>Concurrencia</h3>
+          <p>Dos procesos simultáneos podrían validar sobre estado obsoleto. Requiere manejo de locks.</p>
+        </div>
+        <div class="mini-card warn">
+          <h3>Máximo 2000 registros</h3>
+          <p>Nóminas grandes deben fragmentarse. No hay splitting automático.</p>
+        </div>
+        <div class="mini-card warn">
+          <h3>Sin reintentos automáticos</h3>
+          <p>Errores de detalle requieren reintentos manuales o script externo.</p>
+        </div>
+      </div>
+
+      <h3>11.6 Mejoras futuras sugeridas</h3>
+      <ul>
+        <li>Implementar transacciones atómica (COMMIT = *CHG o *FULL)</li>
+        <li>Agregar locks optimistas en CINTNOH durante cambios de estado</li>
+        <li>Sistema automático de reintentos para errores de detalle</li>
+        <li>Particionamiento de nóminas > 2000 registros</li>
+        <li>Dashboard de monitoreo en tiempo real de estados</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Conclusión</h2>
+      <p>El flujo de importación de nóminas es un sistema robusto, auditado y escalable para procesar transferencias masivas. Su arquitectura modular (4 programas) y máquina de estados explícita garantizan trazabilidad y control total del ciclo de vida de cada nómina.</p>
+      <p>Para nuevos desarrolladores, la clave es entender que:</p>
+      <ol>
+        <li><strong>ITEFT050:</strong> Es la puerta de entrada. Valida y crea registros iniciales.</li>
+        <li><strong>ITEFT060:</strong> Autoriza cambios de estado. Crítico para control de acceso.</li>
+        <li><strong>TEFT0070:</strong> Procesa y ejecuta (típicamente batch nocturno).</li>
+        <li><strong>PA_HISNOMI:</strong> Audita todo. Para troubleshooting y compliance.</li>
+      </ol>
+      <p>Cada programa tiene responsabilidades claras, y juntos conforman un sistema transaccional consistente y auditable.</p>
+    </section>
+
+    <div class="footer-note">
+      <a href="index.html" class="back-button" style="color: rgba(255,255,255,0.82);">← Volver al índice</a>
+      <p style="margin-top: 20px;">Documento generado a partir del análisis de código fuente de ITEFT050, ITEFT060, TEFT0070 y PA_HISNOMI.</p>
+    </div>
+  </div>
+</body>
+</html>
